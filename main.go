@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"strings"
 
 	_ "github.com/ClickHouse/clickhouse-go"
@@ -111,43 +108,6 @@ func getGrowths(connect *sqlx.DB, data DataTable) {
 
 	}
 }
-func WriteToCSV(d DataTable, jsonMap map[string]RepoInfo) {
-	outFile, _ := os.Create("data/out.csv")
-	w := csv.NewWriter(outFile)
-
-	if err := w.Write([]string{"name", "url", "stars", "growth30", "growth180", "growth365", "language", "topics", "description"}); err != nil {
-		log.Fatalln("OMFG", err)
-	}
-	for repoName, tableItem := range d {
-		var stars, language, topics, description string
-		if repoInfo, ok := jsonMap[repoName]; ok {
-			var topicsList []string
-			stars, language, topicsList, description = fmt.Sprint(repoInfo.Stars), repoInfo.Language, repoInfo.Topics, repoInfo.Description
-			topics = strings.Join(topicsList, ", ")
-		}
-
-		record := []string{
-			repoName,
-			"https://github.com/" + repoName,
-			stars,
-			fmt.Sprint(tableItem.Growth30),
-			fmt.Sprint(tableItem.Growth180),
-			fmt.Sprint(tableItem.Growth365),
-			language,
-			topics,
-			description,
-		}
-		// fmt.Println("record", record)
-		if err := w.Write(record); err != nil {
-			log.Println("CSV write error", err)
-		}
-	}
-	w.Flush()
-
-	if err := w.Error(); err != nil {
-		log.Fatal(err)
-	}
-}
 
 func WriteToJSON(d DataTable, jsonMap map[string]RepoInfo) {
 	type JSONOutItem struct {
@@ -216,6 +176,5 @@ func main() {
 	getGrowths(connect, data)
 	// log.Println(data)
 	// Write out
-	// WriteToCSV(data, jsonMap)
 	WriteToJSON(data, jsonMap)
 }
