@@ -12,6 +12,7 @@ import (
 )
 
 const MINSTARSLASTYEAR = 10000
+const JSONFILENAME = "data/repo-info.json"
 
 type Period struct {
 	name string
@@ -33,6 +34,13 @@ type TableItem struct {
 	Growth30  float64
 	Growth180 float64
 	Growth365 float64
+}
+
+type RepoInfo struct {
+	Stars       int
+	Language    string
+	Topics      []string
+	Description string
 }
 
 func getRepos(connect *sqlx.DB) DataTable {
@@ -151,15 +159,6 @@ func WriteToJSON(d DataTable, jsonMap map[string]RepoInfo) {
 	}
 
 }
-
-type RepoInfo struct {
-	Stars       int
-	Language    string
-	Topics      []string
-	Description string
-}
-
-const JSONFILENAME = "data/repo-info.json"
 
 func main() {
 	connect, err := sqlx.Open("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true")
