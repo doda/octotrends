@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -9,17 +8,13 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
-
-	"golang.org/x/oauth2"
 
 	_ "github.com/ClickHouse/clickhouse-go"
 
-	"github.com/google/go-github/github"
 	"github.com/jmoiron/sqlx"
 )
 
-const MINSTARSLASTYEAR = 1000
+const MINSTARSLASTYEAR = 10000
 
 type Period struct {
 	name string
@@ -61,7 +56,7 @@ func getRepos(connect *sqlx.DB) DataTable {
 
 	data := DataTable{}
 	for _, item := range items {
-		log.Printf("name: %s", item)
+		// log.Printf("name: %s", item)
 		data[item] = TableItem{}
 	}
 	log.Printf("# items: %d", len(items))
@@ -100,7 +95,7 @@ func getGrowths(connect *sqlx.DB, data DataTable) {
 		}
 
 		for _, item := range items {
-			log.Printf("name: %s, growth: %f", item.RepoName, item.Growth)
+			// log.Printf("name: %s, growth: %f", item.RepoName, item.Growth)
 			itemHere := data[item.RepoName]
 			switch period.days {
 			case 30:
@@ -142,7 +137,7 @@ func WriteToCSV(d DataTable, jsonMap map[string]RepoInfo) {
 			topics,
 			description,
 		}
-		fmt.Println("record", record)
+		// fmt.Println("record", record)
 		if err := w.Write(record); err != nil {
 			log.Println("CSV write error", err)
 		}
@@ -206,98 +201,20 @@ type RepoInfo struct {
 
 const JSONFILENAME = "data/repo-info.json"
 
-func loadJSONMap() map[string]RepoInfo {
-	data := make(map[string]RepoInfo)
-
-	jsonBytes, err := ioutil.ReadFile(JSONFILENAME)
-	if err != nil {
-		log.Println("Error loading JSON", err)
-	} else {
-		json.Unmarshal(jsonBytes, &data)
-	}
-	return data
-}
-
-func writeJSONMap(data map[string]RepoInfo) {
-	bytes, _ := json.Marshal(data)
-	if err := ioutil.WriteFile(JSONFILENAME, bytes, 0644); err != nil {
-		log.Println(err)
-	}
-}
-
-func GH(repoNames []string) map[string]RepoInfo {
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "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"},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-
-	client := github.NewClient(tc)
-
-	jsonMap := loadJSONMap()
-	log.Println("Loaded JSON Map", jsonMap)
-	for _, repoName := range repoNames {
-		if _, ok := jsonMap[repoName]; ok {
-			// We have this info skip it
-			log.Printf("Skipping %s", repoName)
-			continue
-		}
-		log.Println("Getting %s", repoName)
-		spluts := strings.Split(repoName, "/")
-		owner, name := spluts[0], spluts[1]
-		var repo *github.Repository
-		var err error
-		for {
-			repo, _, err = client.Repositories.Get(ctx, owner, name)
-			if _, ok := err.(*github.RateLimitError); ok {
-				log.Println("Hit rate limit, sleeping 1 minute")
-				time.Sleep(time.Minute)
-			} else {
-				break
-			}
-		}
-		if repo == nil {
-			log.Println("Repo is nil:", repoName)
-			continue
-		}
-		stars := 0
-		if repo.StargazersCount != nil {
-			stars = *repo.StargazersCount
-		}
-		language := ""
-		if repo.Language != nil {
-			language = *repo.Language
-		}
-		description := ""
-		if repo.Description != nil {
-			description = *repo.Description
-		}
-		ri := RepoInfo{
-			stars,
-			language,
-			repo.Topics,
-			description,
-		}
-		jsonMap[repoName] = ri
-	}
-	writeJSONMap(jsonMap)
-	return jsonMap
-}
-
 func main() {
-	connect, err := sqlx.Open("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=true&username=explorer&secure=true")
+	connect, err := sqlx.Open("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Get repos we want to have
 	data := getRepos(connect)
-	jsonMap := GH([]string{"dodafin/struba", "facebook/react"})
 	// Get GitHub data for these repos (either cached or anew)
+	jsonMap := GH([]string{"dodafin/struba", "facebook/react", "doesnotexist/doesnotexist2000"})
 	// jsonMap := GH(data.Keys())
 	// Get Growth data from ClickHouse
 	getGrowths(connect, data)
-	log.Println(data)
+	// log.Println(data)
 	// Write out
 	// WriteToCSV(data, jsonMap)
 	WriteToJSON(data, jsonMap)
