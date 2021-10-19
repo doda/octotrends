@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -12,8 +13,28 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func loadJSONMap() map[string]RepoInfo {
-	data := make(map[string]RepoInfo)
+const JSONFILENAME = "data/repo-info.json"
+
+var GHP = os.Getenv("GHP")
+
+type RepoInfo struct {
+	ID           int
+	CreatedAt    string
+	UpdatedAt    string
+	PushedAt     string
+	Forks        int
+	OpenIssues   int
+	NetworkCount int
+	Subscribers  int
+	FullName     string
+	Stars        int
+	Language     string
+	Topics       []string
+	Description  string
+}
+
+func loadJSONMap() map[string]github.Repository {
+	data := make(map[string]github.Repository)
 
 	jsonBytes, err := ioutil.ReadFile(JSONFILENAME)
 	if err != nil {
@@ -24,17 +45,17 @@ func loadJSONMap() map[string]RepoInfo {
 	return data
 }
 
-func writeJSONMap(data map[string]RepoInfo) {
+func writeJSONMap(data map[string]github.Repository) {
 	bytes, _ := json.Marshal(data)
 	if err := ioutil.WriteFile(JSONFILENAME, bytes, 0644); err != nil {
 		log.Println(err)
 	}
 }
 
-func GH(repoNames []string) map[string]RepoInfo {
+func GetGHRepoInfo(repoNames []string) map[string]github.Repository {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "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"},
+		&oauth2.Token{AccessToken: GHP},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
@@ -64,28 +85,11 @@ func GH(repoNames []string) map[string]RepoInfo {
 		}
 		if repo == nil {
 			log.Println("Repo is nil:", repoName)
-			jsonMap[repoName] = RepoInfo{}
+			jsonMap[repoName] = github.Repository{}
 			continue
 		}
-		stars := 0
-		if repo.StargazersCount != nil {
-			stars = *repo.StargazersCount
-		}
-		language := ""
-		if repo.Language != nil {
-			language = *repo.Language
-		}
-		description := ""
-		if repo.Description != nil {
-			description = *repo.Description
-		}
-		ri := RepoInfo{
-			stars,
-			language,
-			repo.Topics,
-			description,
-		}
-		jsonMap[repoName] = ri
+
+		jsonMap[repoName] = *repo
 	}
 	writeJSONMap(jsonMap)
 	return jsonMap

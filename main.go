@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	_ "github.com/ClickHouse/clickhouse-go"
+	"github.com/google/go-github/github"
 
 	"github.com/jmoiron/sqlx"
 )
 
 const MINSTARSLASTYEAR = 10000
-const JSONFILENAME = "data/repo-info.json"
 
 type Period struct {
 	name string
@@ -36,10 +36,14 @@ type TableItem struct {
 	Growth365 float64
 }
 
-type RepoInfo struct {
+type JSONOutItem struct {
+	Name        string
 	Stars       int
+	Growth30    float64
+	Growth180   float64
+	Growth365   float64
 	Language    string
-	Topics      []string
+	Topics      string
 	Description string
 }
 
@@ -110,43 +114,28 @@ func getGrowths(connect *sqlx.DB, data DataTable) {
 			case 365:
 				itemHere.Growth365 = item.Growth
 			}
-
+			data[item.RepoName] = itemHere
+			log.Println("Got Growth", item.RepoName, item.Growth)
 		}
 		log.Printf("# items: %d", len(items))
 
 	}
 }
 
-func WriteToJSON(d DataTable, jsonMap map[string]RepoInfo) {
-	type JSONOutItem struct {
-		Name        string
-		Stars       int
-		Growth30    float64
-		Growth180   float64
-		Growth365   float64
-		Language    string
-		Topics      string
-		Description string
-	}
+func WriteToJSON(d DataTable, jsonMap map[string]github.Repository) {
 	outItems := []JSONOutItem{}
 	for repoName, tableItem := range d {
-		var language, topics, description string
-		var stars int
-		if repoInfo, ok := jsonMap[repoName]; ok {
-			var topicsList []string
-			stars, language, topicsList, description = repoInfo.Stars, repoInfo.Language, repoInfo.Topics, repoInfo.Description
-			topics = strings.Join(topicsList, ", ")
-		}
+		repoInfo := jsonMap[repoName]
 
 		outItems = append(outItems, JSONOutItem{
 			repoName,
-			stars,
+			IntValue(repoInfo.StargazersCount),
 			tableItem.Growth30,
 			tableItem.Growth180,
 			tableItem.Growth365,
-			language,
-			topics,
-			description,
+			StringValue(repoInfo.Language),
+			strings.Join(repoInfo.Topics, ", "),
+			StringValue(repoInfo.Description),
 		})
 	}
 	bytes, err := json.Marshal(outItems)
@@ -169,8 +158,8 @@ func main() {
 	// Get repos we want to have
 	data := getRepos(connect)
 	// Get GitHub data for these repos (either cached or anew)
-	jsonMap := GH([]string{"dodafin/struba", "facebook/react", "doesnotexist/doesnotexist2000"})
-	// jsonMap := GH(data.Keys())
+	// jsonMap := GetGHRepoInfo([]string{"dodafin/struba", "facebook/react", "doesnotexist/doesnotexist2000"})
+	jsonMap := GetGHRepoInfo(data.Keys())
 	// Get Growth data from ClickHouse
 	getGrowths(connect, data)
 	// log.Println(data)
