@@ -13,7 +13,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const MINSTARSLASTYEAR = 1000
+const MINSTARSLASTYEAR = 200
 const CLICKHOUSE_URL = "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true"
 
 type Period struct {
