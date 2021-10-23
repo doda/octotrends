@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,9 +13,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 )
-
-const MINSTARSLASTYEAR = 200
-const CLICKHOUSE_URL = "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true"
 
 type Period struct {
 	name string
@@ -73,10 +71,10 @@ GROUP BY repo_name
 HAVING (max(days) >= ? * 2) and baseline > 0 and repo_name in (` + RepoSelectQuery + `)
 `
 
-func GetRepos(connect *sqlx.DB) DataTable {
+func GetRepos(connect *sqlx.DB, minStars int) DataTable {
 	var items []string
 
-	if err := connect.Select(&items, RepoSelectQuery, MINSTARSLASTYEAR); err != nil {
+	if err := connect.Select(&items, RepoSelectQuery, minStars); err != nil {
 		log.Fatal(err)
 	}
 
@@ -84,11 +82,11 @@ func GetRepos(connect *sqlx.DB) DataTable {
 	for _, repoName := range items {
 		data[repoName] = TableItem{}
 	}
-	log.Printf("# items: %d", len(items))
+	log.Printf("# repos to scrape: %d", len(items))
 	return data
 }
 
-func GetGrowths(connect *sqlx.DB, data DataTable) {
+func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 	periods := []Period{
 		{"1mo", 30},
 		{"6mo", 180},
@@ -101,7 +99,7 @@ func GetGrowths(connect *sqlx.DB, data DataTable) {
 			Added    int32  `db:"added"`
 		}
 		fmt.Println("Running", StarsSelectQuery)
-		if err := connect.Select(&items, StarsSelectQuery, period.days, period.days, period.days, MINSTARSLASTYEAR); err != nil {
+		if err := connect.Select(&items, StarsSelectQuery, period.days, period.days, period.days, minStars); err != nil {
 			log.Fatal(err)
 		}
 
@@ -164,18 +162,24 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository) {
 }
 
 func main() {
-	connect, err := sqlx.Open("clickhouse", CLICKHOUSE_URL)
+	minStars := flag.Int("minstars", 200, "Minimum stars received in past Y to be included")
+	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true", "ClickHouse TCP URL")
+	flag.Parse()
+
+	log.Println("Getting repos that have received more than", *minStars, "stars in the past year, and using", *clickHouseURL, "for ClickHouse")
+
+	connect, err := sqlx.Open("clickhouse", *clickHouseURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Get repos we want to have
-	data := GetRepos(connect)
+	data := GetRepos(connect, *minStars)
 	// Get GitHub data for these repos (either cached or anew)
 	// jsonMap := GetGHRepoInfo([]string{"dodafin/struba", "facebook/react", "doesnotexist/doesnotexist2000"})
 	jsonMap := GetGHRepoInfo(data)
 	// Get Growth data from ClickHouse
-	GetGrowths(connect, data)
+	GetGrowths(connect, data, *minStars)
 	// log.Println(data)
 	// Write out
 	WriteToJSON(data, jsonMap)
