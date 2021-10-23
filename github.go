@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -11,21 +10,17 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const JSONFILENAME = "data/repo-info.json"
-
-var GHP = os.Getenv("GHP")
-
-func GetGHRepoInfo(data DataTable) map[string]github.Repository {
+func GetGHRepoInfo(data DataTable, GitHubToken string) map[string]github.Repository {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: GHP},
+		&oauth2.Token{AccessToken: GitHubToken},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
 	client := github.NewClient(tc)
 
 	jsonMap := make(map[string]github.Repository)
-	log.Println("Loaded JSON Map", len(jsonMap))
+
 	for repoName := range data {
 		if _, ok := jsonMap[repoName]; ok {
 			// We have this info, skip it

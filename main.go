@@ -162,11 +162,17 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository) {
 }
 
 func main() {
-	minStars := flag.Int("minstars", 200, "Minimum stars received in past Y to be included")
+	minStars := flag.Int("minstars", 200, "Minimum stars received in past year to be included")
 	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true", "ClickHouse TCP URL")
+	githbToken := flag.String("ghp", "", "GitHub Access token")
 	flag.Parse()
 
-	log.Println("Getting repos that have received more than", *minStars, "stars in the past year, and using", *clickHouseURL, "for ClickHouse")
+	if *githbToken == "" {
+		log.Println("Requires a GitHub Access Token")
+		return
+	}
+
+	log.Println("Getting repos that have received more than", *minStars, "stars in the past year, and using ClickHouse URL:", *clickHouseURL)
 
 	connect, err := sqlx.Open("clickhouse", *clickHouseURL)
 	if err != nil {
@@ -175,12 +181,13 @@ func main() {
 
 	// Get repos we want to have
 	data := GetRepos(connect, *minStars)
+
 	// Get GitHub data for these repos (either cached or anew)
-	// jsonMap := GetGHRepoInfo([]string{"dodafin/struba", "facebook/react", "doesnotexist/doesnotexist2000"})
-	jsonMap := GetGHRepoInfo(data)
+	jsonMap := GetGHRepoInfo(data, *githbToken)
+
 	// Get Growth data from ClickHouse
 	GetGrowths(connect, data, *minStars)
-	// log.Println(data)
+
 	// Write out
 	WriteToJSON(data, jsonMap)
 }
