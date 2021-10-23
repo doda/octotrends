@@ -10,7 +10,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Get additional per-repo information (current # of stars, primary programming language, description)
+// directly from GitHub
 func GetGHRepoInfo(data DataTable, GitHubToken string) map[string]github.Repository {
+	// Set up GH API client
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: GitHubToken},
@@ -19,19 +22,15 @@ func GetGHRepoInfo(data DataTable, GitHubToken string) map[string]github.Reposit
 
 	client := github.NewClient(tc)
 
-	jsonMap := make(map[string]github.Repository)
+	GHInfoMap := make(map[string]github.Repository)
 
 	for repoName := range data {
-		if _, ok := jsonMap[repoName]; ok {
-			// We have this info, skip it
-			log.Printf("Skipping %s", repoName)
-			continue
-		}
 		log.Println("Getting", repoName)
-		spluts := strings.Split(repoName, "/")
-		owner, name := spluts[0], spluts[1]
+		nameParts := strings.Split(repoName, "/")
+		owner, name := nameParts[0], nameParts[1]
 		var repo *github.Repository
 		var err error
+		// Loop until we're not timed out
 		for {
 			repo, _, err = client.Repositories.Get(ctx, owner, name)
 			if _, ok := err.(*github.RateLimitError); ok {
@@ -43,11 +42,11 @@ func GetGHRepoInfo(data DataTable, GitHubToken string) map[string]github.Reposit
 		}
 		if repo == nil {
 			log.Println("Repo is nil:", repoName)
-			jsonMap[repoName] = github.Repository{}
+			GHInfoMap[repoName] = github.Repository{}
 			continue
 		}
 
-		jsonMap[repoName] = *repo
+		GHInfoMap[repoName] = *repo
 	}
-	return jsonMap
+	return GHInfoMap
 }

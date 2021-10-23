@@ -71,6 +71,7 @@ GROUP BY repo_name
 HAVING (max(days) >= ? * 2) and baseline > 0 and repo_name in (` + RepoSelectQuery + `)
 `
 
+// Get an initial list of repos to scrape that meet a minimum popularity bar
 func GetRepos(connect *sqlx.DB, minStars int) DataTable {
 	var items []string
 
@@ -86,6 +87,8 @@ func GetRepos(connect *sqlx.DB, minStars int) DataTable {
 	return data
 }
 
+// Use ClickHouse to quickly aggregate how many people have starred the repo in the "baseline" (second-to-last) period and the
+// "added" (last) period. This allows us to calculate the % growth within the "added" period.
 func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 	periods := []Period{
 		{"1mo", 30},
@@ -104,8 +107,8 @@ func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 		}
 
 		for _, item := range items {
-			// log.Printf("name: %s, growth: %f", item.RepoName, item.Growth)
 			dataItem := data[item.RepoName]
+			// Div zero is caught by SQL query
 			base, added, growth := int(item.Baseline), int(item.Added), float64(item.Baseline+item.Added)/float64(item.Baseline)
 			switch period.days {
 			case 30:
@@ -116,14 +119,13 @@ func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 				dataItem.Baseline365, dataItem.Added365, dataItem.Growth365 = base, added, growth
 			}
 			data[item.RepoName] = dataItem
-			// log.Println("Got Growth", item.RepoName, growth)
 		}
-		log.Printf("# items: %d", len(items))
+		log.Printf("Aggregated %d items for period %d days", len(items), period.days)
 
 	}
 }
 
-func WriteToJSON(d DataTable, jsonMap map[string]github.Repository) {
+func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName string) {
 	outItems := []JSONOutItem{}
 	for repoName, tableItem := range d {
 		repoInfo := jsonMap[repoName]
@@ -154,7 +156,7 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository) {
 	if err != nil {
 		log.Println("Error marshaling JSON", err)
 	}
-	err = ioutil.WriteFile("data/out.json", bytes, 0644)
+	err = ioutil.WriteFile(outFileName, bytes, 0644)
 	if err != nil {
 		log.Println("Error saving JSON", err)
 	}
@@ -165,6 +167,8 @@ func main() {
 	minStars := flag.Int("minstars", 200, "Minimum stars received in past year to be included")
 	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true", "ClickHouse TCP URL")
 	githbToken := flag.String("ghp", "", "GitHub Access token")
+	outFileName := flag.String("o", "data/out.json", "Output file name")
+
 	flag.Parse()
 
 	if *githbToken == "" {
@@ -180,14 +184,14 @@ func main() {
 	}
 
 	// Get repos we want to have
-	data := GetRepos(connect, *minStars)
+	dataTable := GetRepos(connect, *minStars)
 
-	// Get GitHub data for these repos (either cached or anew)
-	jsonMap := GetGHRepoInfo(data, *githbToken)
+	// Get GitHub dataTable for these repos (either cached or anew)
+	GHInfoMap := GetGHRepoInfo(dataTable, *githbToken)
 
-	// Get Growth data from ClickHouse
-	GetGrowths(connect, data, *minStars)
+	// Get Growth dataTable from ClickHouse
+	GetGrowths(connect, dataTable, *minStars)
 
 	// Write out
-	WriteToJSON(data, jsonMap)
+	WriteToJSON(dataTable, GHInfoMap, *outFileName)
 }
