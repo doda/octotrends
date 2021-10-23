@@ -11,20 +11,6 @@ var BLOCKEDREPOS = []string{
 	"donnemartin/system-design-primer",
 }
 
-func StringValue(sp *string) string {
-	if sp == nil {
-		return ""
-	}
-	return *sp
-}
-
-func IntValue(ip *int) int {
-	if ip == nil {
-		return 0
-	}
-	return *ip
-}
-
 func RepoLangBlocked(name string) bool {
 	for _, blocked := range BLOCKEDREPOS {
 		if blocked == name {
@@ -32,4 +18,20 @@ func RepoLangBlocked(name string) bool {
 		}
 	}
 	return false
+}
+
+// Safely deref a string-pointer
+func StringValue(sp *string) string {
+	if sp == nil {
+		return ""
+	}
+	return *sp
+}
+
+// Safely deref an int-pointer
+func IntValue(ip *int) int {
+	if ip == nil {
+		return 0
+	}
+	return *ip
 }

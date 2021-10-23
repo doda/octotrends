@@ -125,6 +125,7 @@ func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 	}
 }
 
+// Write our accumulated & joined information out to JSON for the frontend to consume
 func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName string) {
 	outItems := []JSONOutItem{}
 	for repoName, tableItem := range d {
