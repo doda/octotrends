@@ -1,33 +1,5 @@
-# octogrowth
+<img src="https://github.com/dodafin/octotrends-frontend/blob/main/src/images/octotrends-logo-black.png?raw=true" width="350" alt="OctoTrends logo">
 
-## Steps for repos
-1. Select all repos that have received >100 stars in the last 365 days.
-2. Calculate stats for all
+## [octotrends.com](https://octotrends.com/)
 
-## Steps for users
-1. Select all users whose repos have received >100 stars in the last 365 days.
-2. Calculate stats for all
-
-## Steps for orgs
-1. Select all orgs whose repos have received >100 stars in the last 365 days.
-2. Calculate stats for all
-
-## Steps for orgs
-1. Select all languages whose repos have received >100 stars in the last 365 days.
-2. Calculate stats for all
-
-
-
-
-# stars
-stars growth 1mo/6mo/1y OK
-Stars gained 1mo/6mo/1y
-comments/issue ratio
-numbers of contributors
-numbers of contributors growth
-
-
-
-add info:
-description
-programming language
+A niftly little tool I wrote to try and find repos and languages that are rapidly growing on GitHub. Growth rates are based on % growth in stars over the past 30 / 180 / 365 days which isn't perfect but it is a way to dig deeper than what [GitHub's Explore](https://github.com/explore) offers.
