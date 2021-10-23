@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -17,25 +15,6 @@ const JSONFILENAME = "data/repo-info.json"
 
 var GHP = os.Getenv("GHP")
 
-func LoadJSONMap() map[string]github.Repository {
-	data := make(map[string]github.Repository)
-
-	jsonBytes, err := ioutil.ReadFile(JSONFILENAME)
-	if err != nil {
-		log.Println("Error loading JSON", err)
-	} else {
-		json.Unmarshal(jsonBytes, &data)
-	}
-	return data
-}
-
-func WriteJSONMap(data map[string]github.Repository) {
-	bytes, _ := json.Marshal(data)
-	if err := ioutil.WriteFile(JSONFILENAME, bytes, 0644); err != nil {
-		log.Println(err)
-	}
-}
-
 func GetGHRepoInfo(data DataTable) map[string]github.Repository {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
@@ -45,7 +24,7 @@ func GetGHRepoInfo(data DataTable) map[string]github.Repository {
 
 	client := github.NewClient(tc)
 
-	jsonMap := LoadJSONMap()
+	jsonMap := make(map[string]github.Repository)
 	log.Println("Loaded JSON Map", len(jsonMap))
 	for repoName := range data {
 		if _, ok := jsonMap[repoName]; ok {
@@ -75,6 +54,5 @@ func GetGHRepoInfo(data DataTable) map[string]github.Repository {
 
 		jsonMap[repoName] = *repo
 	}
-	WriteJSONMap(jsonMap)
 	return jsonMap
 }
