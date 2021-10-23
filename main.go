@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -12,7 +13,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const MINSTARSLASTYEAR = 10000
+const MINSTARSLASTYEAR = 1000
+const CLICKHOUSE_URL = "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true"
 
 type Period struct {
 	name string
@@ -21,101 +23,102 @@ type Period struct {
 
 type DataTable map[string]TableItem
 
-func (d DataTable) Keys() []string {
-	keys := make([]string, 0, len(d))
-
-	for k := range d {
-		keys = append(keys, k)
-	}
-	return keys
-}
-
 type TableItem struct {
-	Growth30  float64
-	Growth180 float64
-	Growth365 float64
+	Baseline30  int
+	Added30     int
+	Growth30    float64
+	Baseline180 int
+	Added180    int
+	Growth180   float64
+	Baseline365 int
+	Added365    int
+	Growth365   float64
 }
 
 type JSONOutItem struct {
 	Name        string
 	Stars       int
+	Baseline30  int
+	Added30     int
 	Growth30    float64
+	Baseline180 int
+	Added180    int
 	Growth180   float64
+	Baseline365 int
+	Added365    int
 	Growth365   float64
 	Language    string
 	Topics      string
 	Description string
 }
 
-func getRepos(connect *sqlx.DB) DataTable {
+var RepoSelectQuery = `
+SELECT
+	repo_name
+FROM github_events
+WHERE event_type = 'WatchEvent' AND created_at > minus(now(), toIntervalDay(365))
+GROUP BY repo_name
+HAVING (count() >= ?)
+`
+
+var StarsSelectQuery = `
+WITH dateDiff('day', created_at, (SELECT max(created_at) FROM github_events)) as days
+SELECT
+	repo_name,
+	sum(days > ?) as baseline,
+	sum(days <= ?) as added
+FROM github_events
+WHERE event_type = 'WatchEvent'
+GROUP BY repo_name
+HAVING (max(days) >= ? * 2) and baseline > 0 and repo_name in (` + RepoSelectQuery + `)
+`
+
+func GetRepos(connect *sqlx.DB) DataTable {
 	var items []string
 
-	selector := `
-	SELECT
-		repo_name
-	FROM github_events
-	WHERE event_type = 'WatchEvent' AND created_at > minus(now(), toIntervalDay(365))
-	GROUP BY repo_name
-	HAVING (count() >= ?);
-	`
-
-	if err := connect.Select(&items, selector, MINSTARSLASTYEAR); err != nil {
+	if err := connect.Select(&items, RepoSelectQuery, MINSTARSLASTYEAR); err != nil {
 		log.Fatal(err)
 	}
 
 	data := DataTable{}
-	for _, item := range items {
-		// log.Printf("name: %s", item)
-		data[item] = TableItem{}
+	for _, repoName := range items {
+		data[repoName] = TableItem{}
 	}
 	log.Printf("# items: %d", len(items))
 	return data
 }
 
-func getGrowths(connect *sqlx.DB, data DataTable) {
+func GetGrowths(connect *sqlx.DB, data DataTable) {
 	periods := []Period{
-		{"1y", 365},
-		{"6mo", 180},
 		{"1mo", 30},
+		{"6mo", 180},
+		{"1y", 365},
 	}
-	selector := `
-	WITH dateDiff('day', created_at, (SELECT max(created_at) FROM github_events)) as days
-	SELECT
-		repo_name,
-		sum(days > ?) as penult,
-		sum(days <= ?) as ult,
-		round((penult + ult) / penult, 3) as growth
-	FROM github_events
-	WHERE event_type = 'WatchEvent'
-	GROUP BY repo_name
-	HAVING (max(days) >= ? * 2) and penult > 0 and repo_name in (?)
-	ORDER BY growth desc
-	`
 	for _, period := range periods {
 		var items []struct {
-			RepoName string  `db:"repo_name"`
-			Penult   int32   `db:"penult"`
-			Ult      int32   `db:"ult"`
-			Growth   float64 `db:"growth"`
+			RepoName string `db:"repo_name"`
+			Baseline int32  `db:"baseline"`
+			Added    int32  `db:"added"`
 		}
-
-		if err := connect.Select(&items, selector, period.days, period.days, period.days, data.Keys()); err != nil {
+		fmt.Println("Running", StarsSelectQuery)
+		if err := connect.Select(&items, StarsSelectQuery, period.days, period.days, period.days, MINSTARSLASTYEAR); err != nil {
 			log.Fatal(err)
 		}
 
 		for _, item := range items {
 			// log.Printf("name: %s, growth: %f", item.RepoName, item.Growth)
-			itemHere := data[item.RepoName]
+			dataItem := data[item.RepoName]
+			base, added, growth := int(item.Baseline), int(item.Added), float64(item.Baseline+item.Added)/float64(item.Baseline)
 			switch period.days {
 			case 30:
-				itemHere.Growth30 = item.Growth
+				dataItem.Baseline30, dataItem.Added30, dataItem.Growth30 = base, added, growth
 			case 180:
-				itemHere.Growth180 = item.Growth
+				dataItem.Baseline180, dataItem.Added180, dataItem.Growth180 = base, added, growth
 			case 365:
-				itemHere.Growth365 = item.Growth
+				dataItem.Baseline365, dataItem.Added365, dataItem.Growth365 = base, added, growth
 			}
-			data[item.RepoName] = itemHere
-			log.Println("Got Growth", item.RepoName, item.Growth)
+			data[item.RepoName] = dataItem
+			// log.Println("Got Growth", item.RepoName, growth)
 		}
 		log.Printf("# items: %d", len(items))
 
@@ -127,15 +130,26 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository) {
 	for repoName, tableItem := range d {
 		repoInfo := jsonMap[repoName]
 
+		language := StringValue(repoInfo.Language)
+		if RepoLangBlocked(repoName) {
+			language = ""
+		}
+
 		outItems = append(outItems, JSONOutItem{
-			repoName,
-			IntValue(repoInfo.StargazersCount),
-			tableItem.Growth30,
-			tableItem.Growth180,
-			tableItem.Growth365,
-			StringValue(repoInfo.Language),
-			strings.Join(repoInfo.Topics, ", "),
-			StringValue(repoInfo.Description),
+			Name:        repoName,
+			Stars:       IntValue(repoInfo.StargazersCount),
+			Baseline30:  tableItem.Baseline30,
+			Added30:     tableItem.Added30,
+			Growth30:    tableItem.Growth30,
+			Baseline180: tableItem.Baseline180,
+			Added180:    tableItem.Added180,
+			Growth180:   tableItem.Growth180,
+			Baseline365: tableItem.Baseline365,
+			Added365:    tableItem.Added365,
+			Growth365:   tableItem.Growth365,
+			Language:    language,
+			Topics:      strings.Join(repoInfo.Topics, ", "),
+			Description: StringValue(repoInfo.Description),
 		})
 	}
 	bytes, err := json.Marshal(outItems)
@@ -150,18 +164,18 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository) {
 }
 
 func main() {
-	connect, err := sqlx.Open("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true")
+	connect, err := sqlx.Open("clickhouse", CLICKHOUSE_URL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Get repos we want to have
-	data := getRepos(connect)
+	data := GetRepos(connect)
 	// Get GitHub data for these repos (either cached or anew)
 	// jsonMap := GetGHRepoInfo([]string{"dodafin/struba", "facebook/react", "doesnotexist/doesnotexist2000"})
-	jsonMap := GetGHRepoInfo(data.Keys())
+	jsonMap := GetGHRepoInfo(data)
 	// Get Growth data from ClickHouse
-	getGrowths(connect, data)
+	GetGrowths(connect, data)
 	// log.Println(data)
 	// Write out
 	WriteToJSON(data, jsonMap)

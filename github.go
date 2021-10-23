@@ -17,23 +17,7 @@ const JSONFILENAME = "data/repo-info.json"
 
 var GHP = os.Getenv("GHP")
 
-type RepoInfo struct {
-	ID           int
-	CreatedAt    string
-	UpdatedAt    string
-	PushedAt     string
-	Forks        int
-	OpenIssues   int
-	NetworkCount int
-	Subscribers  int
-	FullName     string
-	Stars        int
-	Language     string
-	Topics       []string
-	Description  string
-}
-
-func loadJSONMap() map[string]github.Repository {
+func LoadJSONMap() map[string]github.Repository {
 	data := make(map[string]github.Repository)
 
 	jsonBytes, err := ioutil.ReadFile(JSONFILENAME)
@@ -45,14 +29,14 @@ func loadJSONMap() map[string]github.Repository {
 	return data
 }
 
-func writeJSONMap(data map[string]github.Repository) {
+func WriteJSONMap(data map[string]github.Repository) {
 	bytes, _ := json.Marshal(data)
 	if err := ioutil.WriteFile(JSONFILENAME, bytes, 0644); err != nil {
 		log.Println(err)
 	}
 }
 
-func GetGHRepoInfo(repoNames []string) map[string]github.Repository {
+func GetGHRepoInfo(data DataTable) map[string]github.Repository {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: GHP},
@@ -61,11 +45,11 @@ func GetGHRepoInfo(repoNames []string) map[string]github.Repository {
 
 	client := github.NewClient(tc)
 
-	jsonMap := loadJSONMap()
+	jsonMap := LoadJSONMap()
 	log.Println("Loaded JSON Map", len(jsonMap))
-	for _, repoName := range repoNames {
+	for repoName := range data {
 		if _, ok := jsonMap[repoName]; ok {
-			// We have this info skip it
+			// We have this info, skip it
 			log.Printf("Skipping %s", repoName)
 			continue
 		}
@@ -91,6 +75,6 @@ func GetGHRepoInfo(repoNames []string) map[string]github.Repository {
 
 		jsonMap[repoName] = *repo
 	}
-	writeJSONMap(jsonMap)
+	WriteJSONMap(jsonMap)
 	return jsonMap
 }
