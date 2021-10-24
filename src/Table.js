@@ -2,8 +2,6 @@ import React from "react";
 import {
   useTable,
   useFilters,
-  useGlobalFilter,
-  useAsyncDebounce,
   useSortBy,
   usePagination,
   useGroupBy,
@@ -21,35 +19,6 @@ import { humanNumber, growthCalc } from "./shared/Utils";
 import { SortIcon, SortUpIcon, SortDownIcon } from "./shared/Icons";
 import { StarIcon, SquareFillIcon } from "@primer/octicons-react";
 import Colors from "./colors.json";
-
-// Define a default UI for filtering
-function GlobalFilter({
-  preGlobalFilteredRows,
-  globalFilter,
-  setGlobalFilter,
-}) {
-  const count = preGlobalFilteredRows.length;
-  const [value, setValue] = React.useState(globalFilter);
-  const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
-  }, 200);
-
-  return (
-    <label className="flex gap-x-2 items-baseline">
-      <span className="text-gray-700">Search: </span>
-      <input
-        type="text"
-        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        value={value || ""}
-        onChange={(e) => {
-          setValue(e.target.value);
-          onChange(e.target.value);
-        }}
-        placeholder={`${count} records...`}
-      />
-    </label>
-  );
-}
 
 // This is a custom filter UI for selecting
 // a unique option from a list
@@ -258,8 +227,6 @@ function Table({ columns, data }) {
     setPageSize,
 
     state,
-    preGlobalFilteredRows,
-    setGlobalFilter,
   } = useTable(
     {
       columns,
@@ -278,7 +245,6 @@ function Table({ columns, data }) {
       },
     },
     useFilters,
-    useGlobalFilter,
     useGroupBy,
     useSortBy,
     useExpanded,
@@ -292,11 +258,6 @@ function Table({ columns, data }) {
         <GroupButton right>Languages</GroupButton>
       </ButtonGroup>
       <div className="sm:flex sm:gap-x-2">
-        <GlobalFilter
-          preGlobalFilteredRows={preGlobalFilteredRows}
-          globalFilter={state.globalFilter}
-          setGlobalFilter={setGlobalFilter}
-        />
         {headerGroups.map((headerGroup) =>
           headerGroup.headers.map((column) =>
             column.Filter ? (
