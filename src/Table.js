@@ -16,6 +16,7 @@ import {
   ChevronDoubleRightIcon,
 } from "@heroicons/react/solid";
 import { Button, PageButton } from "./shared/Button";
+import { ButtonGroup, GroupButton } from "./shared/ButtonGroup";
 import { humanNumber, growthCalc } from "./shared/Utils";
 import { SortIcon, SortUpIcon, SortDownIcon } from "./shared/Icons";
 import { StarIcon, SquareFillIcon } from "@primer/octicons-react";
@@ -286,6 +287,10 @@ function Table({ columns, data }) {
   // Render the UI for your table
   return (
     <>
+      <ButtonGroup>
+        <GroupButton left active>Repos</GroupButton>
+        <GroupButton right>Languages</GroupButton>
+      </ButtonGroup>
       <div className="sm:flex sm:gap-x-2">
         <GlobalFilter
           preGlobalFilteredRows={preGlobalFilteredRows}
