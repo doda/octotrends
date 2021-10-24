@@ -253,10 +253,6 @@ function Table({ columns, data }) {
   // Render the UI for your table
   return (
     <>
-      <ButtonGroup>
-        <GroupButton left active>Repos</GroupButton>
-        <GroupButton right>Languages</GroupButton>
-      </ButtonGroup>
       <div className="sm:flex sm:gap-x-2">
         {headerGroups.map((headerGroup) =>
           headerGroup.headers.map((column) =>
@@ -292,21 +288,22 @@ function Table({ columns, data }) {
                         >
                           <div className="flex items-center justify-between">
                             {column.canGroupBy ? (
-                              // If the column can be grouped, let's add a toggle
-                              <span
-                                className="absolute right-0 -top-12"
-                                {...column.getGroupByToggleProps()}
-                              >
-                                {column.isGrouped ? (
-                                  "Ungrouped"
-                                ) : (
-                                  <span>
-                                    Group by
-                                    <br />
-                                    Language
-                                  </span>
-                                )}
-                              </span>
+                              <ButtonGroup className="absolute right-0 -top-14">
+                                <GroupButton
+                                  left
+                                  active={!column.isGrouped}
+                                  {...column.getGroupByToggleProps()}
+                                >
+                                  Repos
+                                </GroupButton>
+                                <GroupButton
+                                  right
+                                  active={column.isGrouped}
+                                  {...column.getGroupByToggleProps()}
+                                >
+                                  Languages
+                                </GroupButton>
+                              </ButtonGroup>
                             ) : null}
 
                             {column.render("Header")}
