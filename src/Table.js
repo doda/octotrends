@@ -139,7 +139,7 @@ export function SliderColumnFilter(stuff) {
 }
 
 export function NameCell({ value, row }) {
-  console.log(row)
+  console.log(row);
   return (
     <div
       className="text-sm text-gray-500 truncate w-48"
@@ -161,7 +161,7 @@ export function LanguageCell({ value, setFilter, columns, state }) {
   let languageCol = columns.filter(function (entry) {
     return entry.id === "Language";
   })[0];
-  
+
   let linkProps = {
     href: "#",
     className: "truncate hover:underline w-28",
@@ -331,7 +331,15 @@ function Table({ columns, data }) {
                                 className="absolute right-0 -top-12"
                                 {...column.getGroupByToggleProps()}
                               >
-                                {column.isGrouped ? "Ungrouped" : <span>Group by<br/>Language</span>}
+                                {column.isGrouped ? (
+                                  "Ungrouped"
+                                ) : (
+                                  <span>
+                                    Group by
+                                    <br />
+                                    Language
+                                  </span>
+                                )}
                               </span>
                             ) : null}
 
