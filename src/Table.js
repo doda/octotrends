@@ -85,46 +85,6 @@ export function filterInRange(rows, id, filterValue) {
   });
 }
 
-// This is a custom filter UI that uses a
-// slider to set the filter value between a column's
-// min and max values
-export function SliderColumnFilter({
-  column: { filterValue, setFilter, preFilteredRows, id, render },
-}) {
-  let [min, max] = React.useMemo(() => {
-    let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
-    let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
-    preFilteredRows.forEach((row) => {
-      min = Math.min(row.values[id], min);
-      max = Math.max(row.values[id], max);
-    });
-    return [min, max];
-  }, [id, preFilteredRows]);
-
-  // Upper half is not as useful from a filtering perpective
-  max /= 2;
-
-  return (
-    <label className="flex gap-x-2 items-baseline py-2.5">
-      <span className="text-gray-700 w-20 text-right">
-        {render("Header")}
-        {filterValue ? (
-          <span>(&gt;{humanNumber(filterValue)})</span>
-        ) : null}:{" "}
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        value={filterValue || min}
-        onChange={(e) => {
-          setFilter(parseInt(e.target.value, 10));
-        }}
-      />
-    </label>
-  );
-}
-
 let cmpArr = (a1, a2) => a1 && a2 && a1.every((v, i) => v === a2[i]);
 
 export function SizeFilter(props) {
@@ -258,14 +218,6 @@ export function GrowthAccess(period) {
   };
 }
 
-// export function GrowthCell({ value }) {
-//   value = growthCalc(value);
-//   return value === 0 ? null : (
-//     <span className="text-gray-500 text-sm">{`${Math.round(
-//       (value - 1) * 100
-//     )}%`}</span>
-//   );
-// }
 export function GrowthCell({ value }) {
   // value = growthCalc(value);
   return value === 0 ? null : (
