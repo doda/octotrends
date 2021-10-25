@@ -362,7 +362,14 @@ function Table({ columns, data }) {
                                 <GroupButton
                                   left
                                   active={!column.isGrouped}
-                                  {...column.getGroupByToggleProps()}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.nativeEvent.stopImmediatePropagation();
+
+                                    column.getGroupByToggleProps().onClick(e);
+                                    if (!column.isGrouped)
+                                      setFilter("Language", "");
+                                  }}
                                 >
                                   Repos
                                 </GroupButton>
@@ -370,8 +377,12 @@ function Table({ columns, data }) {
                                   right
                                   active={column.isGrouped}
                                   onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.nativeEvent.stopImmediatePropagation();
+
                                     column.getGroupByToggleProps().onClick(e);
-                                    setFilter("Language", "");
+                                    if (!column.isGrouped)
+                                      setFilter("Language", "");
                                   }}
                                 >
                                   Languages
