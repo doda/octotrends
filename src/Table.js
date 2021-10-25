@@ -109,6 +109,7 @@ export function SliderColumnFilter(stuff) {
 }
 
 export function NameCell({ value, row }) {
+  if (value == null) return null;
   let [owner, name] = value.split("/");
   return (
     <div
@@ -135,6 +136,7 @@ export function LanguageCell({ value, setFilter, columns, state }) {
   let linkProps = {
     href: "#",
     className: "truncate hover:underline w-20",
+    title: value,
     onClick: (e) => {
       // Untoggle group by language and show repos for this language
       if (state.groupBy.length > 0) {
