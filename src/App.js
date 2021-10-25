@@ -8,11 +8,15 @@ import Table, {
   filterInRange,
   SizeFilter,
 } from "./Table";
-import { dataCompare, sumNumberObjects, massageData, equalsForSelect } from "./shared/Utils";
+import {
+  dataCompare,
+  sumNumberObjects,
+  massageData,
+  equalsForSelect,
+} from "./shared/Utils";
 import { GraphIcon } from "@primer/octicons-react";
 import JSONData from "./out.json";
 import logoSrc from "./images/octotrends-logo-black.png";
-
 
 function App() {
   const columns = [
@@ -45,9 +49,8 @@ function App() {
     },
     {
       Header: (
-        <span>
-          <GraphIcon />
-          &nbsp;30d
+        <span className="whitespace-nowrap">
+          <GraphIcon /> 30d
         </span>
       ),
       id: "Growth30",
@@ -64,9 +67,8 @@ function App() {
     },
     {
       Header: (
-        <span>
-          <GraphIcon />
-          &nbsp;180d
+        <span className="whitespace-nowrap">
+          <GraphIcon /> 180d
         </span>
       ),
       id: "Growth180",
@@ -83,9 +85,8 @@ function App() {
     },
     {
       Header: (
-        <span>
-          <GraphIcon />
-          &nbsp;365d
+        <span className="whitespace-nowrap">
+          <GraphIcon /> 365d
         </span>
       ),
       id: "Growth365",

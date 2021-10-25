@@ -172,7 +172,7 @@ export function NameCell({ value, row }) {
         </span>
         <br />
         <span className="text-sm text-gray-500">
-          {(row.original || {}).Description}
+          {(row.original || {}).Description}&nbsp;
         </span>
       </a>
     </div>
@@ -262,7 +262,7 @@ export function GrowthAccess(period) {
 export function GrowthCell({ value }) {
   // value = growthCalc(value);
   return value === 0 ? null : (
-    <span className="text-gray-500 text-sm">{value.added}</span>
+    <span className="text-gray-500 text-sm">{value.added > 0 ? "+" : ""}{humanNumber(value.added)}</span>
   );
 }
 
