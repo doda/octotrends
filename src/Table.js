@@ -22,9 +22,12 @@ import Colors from "./colors.json";
 
 // This is a custom filter UI for selecting
 // a unique option from a list
-export function SelectColumnFilter({
-  column: { filterValue, setFilter, preFilteredRows, id, render },
-}) {
+export function SelectColumnFilter(props) {
+  let {
+    column: { filterValue, setFilter, preFilteredRows, id, render },
+    state: { groupBy },
+  } = props;
+
   // Calculate the options for filtering
   // using the preFilteredRows
   const options = React.useMemo(() => {
@@ -34,6 +37,7 @@ export function SelectColumnFilter({
     });
     return [...options.values()];
   }, [id, preFilteredRows]);
+  if (groupBy.length > 0) return null;
 
   // Render a multi-select box
   return (
@@ -123,10 +127,14 @@ export function SliderColumnFilter({
 
 let cmpArr = (a1, a2) => a1 && a2 && a1.every((v, i) => v === a2[i]);
 
-export function SizeFilter({ column: { filterValue, setFilter } }) {
-  console.log(filterValue);
+export function SizeFilter(props) {
+  let {
+    column: { filterValue, setFilter },
+    state: { groupBy },
+  } = props;
+  if (groupBy.length > 0) return null;
   return (
-    <ButtonGroup>
+    <ButtonGroup style={{marginTop: 2}}>
       <GroupButton
         left
         active={cmpArr(filterValue, [0, 2000])}
@@ -269,7 +277,6 @@ export function GrowthCell({ value }) {
 }
 
 function Table({ columns, data }) {
-  console.log(replaceColonmoji(":dog:"));
   // Use the state and functions returned from useTable to build your UI
   const {
     getTableProps,
@@ -323,7 +330,7 @@ function Table({ columns, data }) {
 
   return (
     <>
-      <div className="sm:flex sm:gap-x-2">
+      <div className="sm:flex sm:gap-x-2 h-9">
         {headerGroups.map((headerGroup) =>
           headerGroup.headers.map((column) =>
             column.Filter ? (
@@ -358,7 +365,7 @@ function Table({ columns, data }) {
                         >
                           <div className="flex items-center justify-between">
                             {column.canGroupBy ? (
-                              <ButtonGroup className="absolute right-0 -top-14">
+                              <ButtonGroup className="absolute right-0" style={{top: "-3rem"}}>
                                 <GroupButton
                                   left
                                   active={!column.isGrouped}
@@ -367,8 +374,10 @@ function Table({ columns, data }) {
                                     e.nativeEvent.stopImmediatePropagation();
 
                                     column.getGroupByToggleProps().onClick(e);
-                                    if (!column.isGrouped)
+                                    if (!column.isGrouped) {
+                                      setFilter("Stars", undefined);
                                       setFilter("Language", "");
+                                    }
                                   }}
                                 >
                                   Repos
@@ -381,8 +390,10 @@ function Table({ columns, data }) {
                                     e.nativeEvent.stopImmediatePropagation();
 
                                     column.getGroupByToggleProps().onClick(e);
-                                    if (!column.isGrouped)
+                                    if (!column.isGrouped) {
+                                      setFilter("Stars", undefined);
                                       setFilter("Language", "");
+                                    }
                                   }}
                                 >
                                   Languages
