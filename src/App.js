@@ -5,8 +5,8 @@ import Table, {
   LanguageCell,
   GrowthCell,
   SelectColumnFilter,
-  SliderColumnFilter,
-  filterGreaterThan,
+  filterInRange,
+  SizeFilter,
 } from "./Table";
 import { dataCompare, sumNumberObjects, massageData, equalsForSelect } from "./shared/Utils";
 import { GraphIcon } from "@primer/octicons-react";
@@ -35,8 +35,8 @@ function App() {
       Header: "Stars",
       accessor: "Stars",
       Cell: StarCell,
-      Filter: SliderColumnFilter,
-      filter: filterGreaterThan,
+      Filter: SizeFilter,
+      filter: filterInRange,
       sortType: "number",
       sortDescFirst: true,
       disableGroupBy: true,

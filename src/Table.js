@@ -59,7 +59,6 @@ export function SelectColumnFilter({
   );
 }
 
-// Define a custom filter filter function!
 export function filterGreaterThan(rows, id, filterValue) {
   return rows.filter((row) => {
     const rowValue = row.values[id];
@@ -67,13 +66,27 @@ export function filterGreaterThan(rows, id, filterValue) {
   });
 }
 
+export function filterSmallerThan(rows, id, filterValue) {
+  return rows.filter((row) => {
+    const rowValue = row.values[id];
+    return rowValue < filterValue;
+  });
+}
+
+export function filterInRange(rows, id, filterValue) {
+  let [min, max] = filterValue;
+  return rows.filter((row) => {
+    const rowValue = row.values[id];
+    return rowValue > min && rowValue < max;
+  });
+}
+
 // This is a custom filter UI that uses a
 // slider to set the filter value between a column's
 // min and max values
-export function SliderColumnFilter(stuff) {
-  let {
-    column: { filterValue, setFilter, preFilteredRows, id, render },
-  } = stuff;
+export function SliderColumnFilter({
+  column: { filterValue, setFilter, preFilteredRows, id, render },
+}) {
   let [min, max] = React.useMemo(() => {
     let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
     let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0;
@@ -108,20 +121,59 @@ export function SliderColumnFilter(stuff) {
   );
 }
 
+let cmpArr = (a1, a2) => a1 && a2 && a1.every((v, i) => v === a2[i]);
+
+export function SizeFilter({ column: { filterValue, setFilter } }) {
+  console.log(filterValue);
+  return (
+    <ButtonGroup>
+      <GroupButton
+        left
+        active={cmpArr(filterValue, [0, 2000])}
+        onClick={(e) => setFilter([0, 2000])}
+      >
+        S
+      </GroupButton>
+      <GroupButton
+        active={cmpArr(filterValue, [2000, 10000])}
+        onClick={(e) => setFilter([2000, 10000])}
+      >
+        M
+      </GroupButton>
+      <GroupButton
+        active={cmpArr(filterValue, [10000, 50000])}
+        onClick={(e) => setFilter([10000, 50000])}
+      >
+        L
+      </GroupButton>
+      <GroupButton
+        right
+        active={filterValue == undefined}
+        onClick={(e) => setFilter(undefined)}
+      >
+        Any
+      </GroupButton>
+    </ButtonGroup>
+  );
+}
+
 export function NameCell({ value, row }) {
   if (value == null) return null;
   let [owner, name] = value.split("/");
   return (
-    <div
-      className="text-sm text-blue-500 truncate"
-      style={{ direction: "rtl", width: 300 }}
-    >
+    <div className="truncate" style={{ width: 300 }}>
       <a
         target="_blank"
         title={(row.original || {}).Description}
         href={"https://github.com/" + value}
       >
-        {owner}/<strong>{name}</strong>
+        <span className="text-sm text-blue-500">
+          {owner}/<strong>{name}</strong>
+        </span>
+        <br />
+        <span className="text-sm text-gray-500">
+          {(row.original || {}).Description}
+        </span>
       </a>
     </div>
   );
@@ -147,7 +199,7 @@ export function LanguageCell({ value, setFilter, columns, state }) {
   };
 
   return (
-    <div className="text-sm truncate whitespace-nowrap w-24">
+    <div className="text-sm truncate whitespace-nowrap w-32">
       <a {...linkProps}>
         {" "}
         <span style={{ color: (Colors[value] || {}).color }}>
@@ -199,12 +251,18 @@ export function GrowthAccess(period) {
   };
 }
 
+// export function GrowthCell({ value }) {
+//   value = growthCalc(value);
+//   return value === 0 ? null : (
+//     <span className="text-gray-500 text-sm">{`${Math.round(
+//       (value - 1) * 100
+//     )}%`}</span>
+//   );
+// }
 export function GrowthCell({ value }) {
-  value = growthCalc(value);
+  // value = growthCalc(value);
   return value === 0 ? null : (
-    <span className="text-gray-500 text-sm">{`${Math.round(
-      (value - 1) * 100
-    )}%`}</span>
+    <span className="text-gray-500 text-sm">{value.added}</span>
   );
 }
 
@@ -343,7 +401,7 @@ function Table({ columns, data }) {
                           return (
                             <td
                               {...cell.getCellProps()}
-                              className="px-6 py-4 whitespace-nowrap"
+                              className="px-6 py-3 whitespace-nowrap"
                               role="cell"
                             >
                               {cell.column.Cell.name === "defaultRenderer" ? (

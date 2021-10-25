@@ -24,9 +24,15 @@ export function compareBasic(a, b) {
   return a === b ? 0 : a > b ? 1 : -1;
 }
 
+// export function dataCompare(rowA, rowB, columnId) {
+//   let dataA = growthCalc(rowA.values[columnId]);
+//   let dataB = growthCalc(rowB.values[columnId]);
+//   return compareBasic(dataA, dataB);
+// }
+
 export function dataCompare(rowA, rowB, columnId) {
-  let dataA = growthCalc(rowA.values[columnId]);
-  let dataB = growthCalc(rowB.values[columnId]);
+  let dataA = (rowA.values[columnId]).added;
+  let dataB = (rowB.values[columnId]).added;
   return compareBasic(dataA, dataB);
 }
 
