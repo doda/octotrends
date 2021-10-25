@@ -336,41 +336,25 @@ function Table({ columns, data }) {
                     // new
                     prepareRow(row);
                     return (
-                      <>
-                        <tr {...row.getRowProps()}>
-                          {row.cells.map((cell) => {
-                            return (
-                              <td
-                                {...cell.getCellProps()}
-                                className="px-6 py-4 whitespace-nowrap"
-                                role="cell"
-                              >
-                                {cell.column.Cell.name === "defaultRenderer" ? (
-                                  <div className="text-sm text-gray-500">
-                                    {cell.render("Cell")}
-                                  </div>
-                                ) : (
-                                  cell.render("Cell")
-                                )}
-                              </td>
-                            );
-                          })}
-                        </tr>
-
-                        <tr
-                          // {...row.getRowProps()}
-                          className="text-sm text-gray-500 truncate border-none"
-                        >
-                          <td>
-                            <div
-                              className="px-6 py-4 whitespace-nowrap w-96 truncate"
+                      <tr {...row.getRowProps()}>
+                        {row.cells.map((cell) => {
+                          return (
+                            <td
+                              {...cell.getCellProps()}
+                              className="px-6 py-4 whitespace-nowrap"
                               role="cell"
                             >
-                              {(row.original || {}).Description}
-                            </div>
-                          </td>
-                        </tr>
-                      </>
+                              {cell.column.Cell.name === "defaultRenderer" ? (
+                                <div className="text-sm text-gray-500">
+                                  {cell.render("Cell")}
+                                </div>
+                              ) : (
+                                cell.render("Cell")
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
                     );
                   })}
                 </tbody>
