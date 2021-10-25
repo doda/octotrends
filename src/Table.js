@@ -112,8 +112,8 @@ export function NameCell({ value, row }) {
   let [owner, name] = value.split("/");
   return (
     <div
-      className="text-sm text-blue-500 truncate w-48"
-      style={{ direction: "rtl" }}
+      className="text-sm text-blue-500 truncate"
+      style={{ direction: "rtl", width: 300 }}
     >
       <a
         target="_blank"
@@ -134,7 +134,7 @@ export function LanguageCell({ value, setFilter, columns, state }) {
 
   let linkProps = {
     href: "#",
-    className: "truncate hover:underline w-28",
+    className: "truncate hover:underline w-20",
     onClick: (e) => {
       // Untoggle group by language and show repos for this language
       if (state.groupBy.length > 0) {
@@ -145,22 +145,22 @@ export function LanguageCell({ value, setFilter, columns, state }) {
   };
 
   return (
-    <a {...linkProps}>
-      {" "}
-      <span style={{ color: (Colors[value] || {}).color }}>
-        <SquareFillIcon />
-      </span>
-      &nbsp;
-      <span className="text-gray-500 text-sm">{value}</span>
-    </a>
+    <div className="text-sm truncate whitespace-nowrap w-24">
+      <a {...linkProps}>
+        {" "}
+        <span style={{ color: (Colors[value] || {}).color }}>
+          <SquareFillIcon />
+        </span>
+        <span className="text-gray-500 text-sm">{value}</span>
+      </a>
+    </div>
   );
 }
 
 export function StarCell({ value }) {
   return (
-    <span className="text-gray-500 text-sm">
+    <span className="text-gray-500 text-sm whitespace-nowrap">
       <StarIcon />
-      &nbsp;
       {humanNumber(value)}
     </span>
   );
