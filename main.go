@@ -24,13 +24,10 @@ type DataTable map[string]TableItem
 type TableItem struct {
 	Baseline30  int
 	Added30     int
-	Growth30    float64
 	Baseline180 int
 	Added180    int
-	Growth180   float64
 	Baseline365 int
 	Added365    int
-	Growth365   float64
 }
 
 type JSONOutItem struct {
@@ -38,13 +35,10 @@ type JSONOutItem struct {
 	Stars       int
 	Baseline30  int
 	Added30     int
-	Growth30    float64
 	Baseline180 int
 	Added180    int
-	Growth180   float64
 	Baseline365 int
 	Added365    int
-	Growth365   float64
 	Language    string
 	Topics      string
 	Description string
@@ -68,7 +62,7 @@ SELECT
 FROM github_events
 WHERE event_type = 'WatchEvent'
 GROUP BY repo_name
-HAVING (max(days) >= ? * 2) and baseline > 0 and repo_name in (` + RepoSelectQuery + `)
+HAVING repo_name in (` + RepoSelectQuery + `)
 `
 
 // Get an initial list of repos to scrape that meet a minimum popularity bar
@@ -102,21 +96,20 @@ func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 			Added    int32  `db:"added"`
 		}
 		fmt.Println("Running", StarsSelectQuery)
-		if err := connect.Select(&items, StarsSelectQuery, period.days, period.days, period.days, minStars); err != nil {
+		if err := connect.Select(&items, StarsSelectQuery, period.days, period.days, minStars); err != nil {
 			log.Fatal(err)
 		}
 
 		for _, item := range items {
 			dataItem := data[item.RepoName]
-			// Div zero is caught by SQL query
-			base, added, growth := int(item.Baseline), int(item.Added), float64(item.Baseline+item.Added)/float64(item.Baseline)
+			base, added := int(item.Baseline), int(item.Added)
 			switch period.days {
 			case 30:
-				dataItem.Baseline30, dataItem.Added30, dataItem.Growth30 = base, added, growth
+				dataItem.Baseline30, dataItem.Added30 = base, added
 			case 180:
-				dataItem.Baseline180, dataItem.Added180, dataItem.Growth180 = base, added, growth
+				dataItem.Baseline180, dataItem.Added180 = base, added
 			case 365:
-				dataItem.Baseline365, dataItem.Added365, dataItem.Growth365 = base, added, growth
+				dataItem.Baseline365, dataItem.Added365 = base, added
 			}
 			data[item.RepoName] = dataItem
 		}
@@ -141,13 +134,10 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 			Stars:       IntValue(repoInfo.StargazersCount),
 			Baseline30:  tableItem.Baseline30,
 			Added30:     tableItem.Added30,
-			Growth30:    tableItem.Growth30,
 			Baseline180: tableItem.Baseline180,
 			Added180:    tableItem.Added180,
-			Growth180:   tableItem.Growth180,
 			Baseline365: tableItem.Baseline365,
 			Added365:    tableItem.Added365,
-			Growth365:   tableItem.Growth365,
 			Language:    language,
 			Topics:      strings.Join(repoInfo.Topics, ", "),
 			Description: StringValue(repoInfo.Description),
@@ -168,7 +158,7 @@ func main() {
 	minStars := flag.Int("minstars", 200, "Minimum stars received in past year to be included")
 	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true", "ClickHouse TCP URL")
 	githbToken := flag.String("ghp", "", "GitHub Access token")
-	outFileName := flag.String("o", "data/out.json", "Output file name")
+	outFileName := flag.String("o", "out.json", "Output file name")
 
 	flag.Parse()
 
