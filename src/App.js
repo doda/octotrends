@@ -49,7 +49,7 @@ function App() {
     },
     {
       Header: (
-        <span className="whitespace-nowrap">
+        <span title="Stars added over the last 30 days" className="whitespace-nowrap">
           <GraphIcon /> 30d
         </span>
       ),
@@ -67,7 +67,7 @@ function App() {
     },
     {
       Header: (
-        <span className="whitespace-nowrap">
+        <span title="Stars added over the last 180 days" className="whitespace-nowrap">
           <GraphIcon /> 180d
         </span>
       ),
@@ -85,7 +85,7 @@ function App() {
     },
     {
       Header: (
-        <span className="whitespace-nowrap">
+        <span title="Stars added over the last 365 days"className="whitespace-nowrap">
           <GraphIcon /> 365d
         </span>
       ),
