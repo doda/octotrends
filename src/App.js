@@ -47,60 +47,29 @@ function App() {
       aggregate: "sum",
       Aggregated: ({ value }) => `${value} (total)`,
     },
-    {
-      Header: (
-        <span title="Stars added over the last 30 days" className="whitespace-nowrap">
-          <GraphIcon /> 30d
-        </span>
-      ),
-      id: "Growth30",
-      accessor: (stuff) => ({
-        baseline: stuff.data.Baseline30,
-        added: stuff.data.Added30,
-      }),
-      Cell: GrowthCell,
-      disableGroupBy: true,
-      Filter: false,
-      sortType: dataCompare,
-      sortDescFirst: true,
-      aggregate: sumNumberObjects,
-    },
-    {
-      Header: (
-        <span title="Stars added over the last 180 days" className="whitespace-nowrap">
-          <GraphIcon /> 180d
-        </span>
-      ),
-      id: "Growth180",
-      accessor: (stuff) => ({
-        baseline: stuff.data.Baseline180,
-        added: stuff.data.Added180,
-      }),
-      Cell: GrowthCell,
-      disableGroupBy: true,
-      Filter: false,
-      sortType: dataCompare,
-      sortDescFirst: true,
-      aggregate: sumNumberObjects,
-    },
-    {
-      Header: (
-        <span title="Stars added over the last 365 days"className="whitespace-nowrap">
-          <GraphIcon /> 365d
-        </span>
-      ),
-      id: "Growth365",
-      accessor: (stuff) => ({
-        baseline: stuff.data.Baseline365,
-        added: stuff.data.Added365,
-      }),
-      Cell: GrowthCell,
-      disableGroupBy: true,
-      Filter: false,
-      sortType: dataCompare,
-      sortDescFirst: true,
-      aggregate: sumNumberObjects,
-    },
+    ...
+      [30, 180, 365].map((period) => ({
+        Header: (
+          <span
+            title="Stars added over the last 180 days"
+            className="whitespace-nowrap"
+          >
+            <GraphIcon /> {period}d
+          </span>
+        ),
+        id: `Growth${period}`,
+        accessor: (stuff) => ({
+          baseline: stuff.data[`Baseline${period}`],
+          added: stuff.data[`Added${period}`],
+        }),
+        Cell: GrowthCell,
+        disableGroupBy: true,
+        Filter: false,
+        sortType: dataCompare,
+        sortDescFirst: true,
+        aggregate: sumNumberObjects,
+      })),
+    ,
   ];
 
   return (
