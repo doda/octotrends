@@ -109,10 +109,10 @@ export function SliderColumnFilter(stuff) {
 }
 
 export function NameCell({ value, row }) {
-  console.log(row);
+  let [owner, name] = value.split("/");
   return (
     <div
-      className="text-sm text-gray-500 truncate w-48"
+      className="text-sm text-blue-500 truncate w-48"
       style={{ direction: "rtl" }}
     >
       <a
@@ -120,7 +120,7 @@ export function NameCell({ value, row }) {
         title={(row.original || {}).Description}
         href={"https://github.com/" + value}
       >
-        {value}
+        {owner}/<strong>{name}</strong>
       </a>
     </div>
   );
@@ -336,25 +336,41 @@ function Table({ columns, data }) {
                     // new
                     prepareRow(row);
                     return (
-                      <tr {...row.getRowProps()}>
-                        {row.cells.map((cell) => {
-                          return (
-                            <td
-                              {...cell.getCellProps()}
-                              className="px-6 py-4 whitespace-nowrap"
+                      <>
+                        <tr {...row.getRowProps()}>
+                          {row.cells.map((cell) => {
+                            return (
+                              <td
+                                {...cell.getCellProps()}
+                                className="px-6 py-4 whitespace-nowrap"
+                                role="cell"
+                              >
+                                {cell.column.Cell.name === "defaultRenderer" ? (
+                                  <div className="text-sm text-gray-500">
+                                    {cell.render("Cell")}
+                                  </div>
+                                ) : (
+                                  cell.render("Cell")
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+
+                        <tr
+                          // {...row.getRowProps()}
+                          className="text-sm text-gray-500 truncate border-none"
+                        >
+                          <td>
+                            <div
+                              className="px-6 py-4 whitespace-nowrap w-96 truncate"
                               role="cell"
                             >
-                              {cell.column.Cell.name === "defaultRenderer" ? (
-                                <div className="text-sm text-gray-500">
-                                  {cell.render("Cell")}
-                                </div>
-                              ) : (
-                                cell.render("Cell")
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
+                              {(row.original || {}).Description}
+                            </div>
+                          </td>
+                        </tr>
+                      </>
                     );
                   })}
                 </tbody>
