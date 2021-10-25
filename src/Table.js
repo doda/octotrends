@@ -116,7 +116,7 @@ export function SizeFilter(props) {
       </GroupButton>
       <GroupButton
         right
-        active={filterValue == undefined}
+        active={filterValue == null}
         onClick={(e) => setFilter(undefined)}
       >
         Any
@@ -133,6 +133,7 @@ export function NameCell({ value, row }) {
     <div className="truncate" style={{ width: 300 }}>
       <a
         target="_blank"
+        rel="noreferrer"
         title={description}
         href={"https://github.com/" + value}
       >
@@ -187,21 +188,6 @@ export function StarCell({ value }) {
   );
 }
 
-export function TopicsCell({ value }) {
-  return (
-    <div className="text-sm 500 truncate w-40">
-      {value
-        .split(", ")
-        .map((elem) =>
-          elem.length === 0 ? null : (
-            <span className="px-3 py-1 leading-wide text-xs rounded-full shadow-sm bg-blue-100 text-blue-600">
-              {elem}
-            </span>
-          )
-        )}
-    </div>
-  );
-}
 
 export function GrowthAccess(period) {
   return function get(stuff) {
