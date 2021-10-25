@@ -8,10 +8,11 @@ import Table, {
   SliderColumnFilter,
   filterGreaterThan,
 } from "./Table";
-import { dataCompare, sumNumberObjects, massageData } from "./shared/Utils";
+import { dataCompare, sumNumberObjects, massageData, equalsForSelect } from "./shared/Utils";
 import { GraphIcon } from "@primer/octicons-react";
 import JSONData from "./out.json";
 import logoSrc from "./images/octotrends-logo-black.png";
+
 
 function App() {
   const columns = [
@@ -28,7 +29,7 @@ function App() {
       accessor: "Language",
       Filter: SelectColumnFilter,
       Cell: LanguageCell,
-      filter: "equals",
+      filter: equalsForSelect,
     },
     {
       Header: "Stars",

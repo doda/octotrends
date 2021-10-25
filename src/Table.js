@@ -225,7 +225,7 @@ function Table({ columns, data }) {
     nextPage,
     previousPage,
     setPageSize,
-
+    setFilter,
     state,
   } = useTable(
     {
@@ -299,7 +299,10 @@ function Table({ columns, data }) {
                                 <GroupButton
                                   right
                                   active={column.isGrouped}
-                                  {...column.getGroupByToggleProps()}
+                                  onClick={(e) => {
+                                    column.getGroupByToggleProps().onClick(e);
+                                    setFilter("Language", "");
+                                  }}
                                 >
                                   Languages
                                 </GroupButton>

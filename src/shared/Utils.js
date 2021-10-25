@@ -58,3 +58,16 @@ export function massageData(data) {
     };
   });
 }
+
+
+export function equalsForSelect(rows, ids, filterValue) {
+  return rows.filter((row) => {
+    return ids.some((id) => {
+      const rowValue = row.values[id];
+      // eslint-disable-next-line eqeqeq
+      return rowValue !== "" && (rowValue == filterValue || filterValue === "");
+    });
+  });
+};
+
+equalsForSelect.autoRemove = (val) => val == null;
