@@ -15,7 +15,7 @@ import {
 } from "@heroicons/react/solid";
 import { Button, PageButton } from "./shared/Button";
 import { ButtonGroup, GroupButton } from "./shared/ButtonGroup";
-import { humanNumber, growthCalc } from "./shared/Utils";
+import { humanNumber, replaceColonmoji } from "./shared/Utils";
 import { SortIcon, SortUpIcon, SortDownIcon } from "./shared/Icons";
 import { StarIcon, SquareFillIcon } from "@primer/octicons-react";
 import Colors from "./colors.json";
@@ -160,20 +160,19 @@ export function SizeFilter({ column: { filterValue, setFilter } }) {
 export function NameCell({ value, row }) {
   if (value == null) return null;
   let [owner, name] = value.split("/");
+  let description = replaceColonmoji((row.original || {}).Description);
   return (
     <div className="truncate" style={{ width: 300 }}>
       <a
         target="_blank"
-        title={(row.original || {}).Description}
+        title={description}
         href={"https://github.com/" + value}
       >
         <span className="text-sm text-blue-500">
           {owner}/<strong>{name}</strong>
         </span>
         <br />
-        <span className="text-sm text-gray-500">
-          {(row.original || {}).Description}&nbsp;
-        </span>
+        <span className="text-sm text-gray-500">{description}&nbsp;</span>
       </a>
     </div>
   );
@@ -262,11 +261,15 @@ export function GrowthAccess(period) {
 export function GrowthCell({ value }) {
   // value = growthCalc(value);
   return value === 0 ? null : (
-    <span className="text-gray-500 text-sm">{value.added > 0 ? "+" : ""}{humanNumber(value.added)}</span>
+    <span className="text-gray-500 text-sm">
+      {value.added > 0 ? "+" : ""}
+      {humanNumber(value.added)}
+    </span>
   );
 }
 
 function Table({ columns, data }) {
+  console.log(replaceColonmoji(":dog:"));
   // Use the state and functions returned from useTable to build your UI
   const {
     getTableProps,
@@ -292,7 +295,13 @@ function Table({ columns, data }) {
       columns,
       data,
       initialState: {
-        pageSize: 15,
+        pageSize: 10,
+        sortBy: [
+          {
+            id: "Growth30",
+            desc: true,
+          },
+        ],
         hiddenColumns: [
           "data",
           "Added30",
@@ -311,6 +320,7 @@ function Table({ columns, data }) {
     usePagination
   );
   // Render the UI for your table
+
   return (
     <>
       <div className="sm:flex sm:gap-x-2">

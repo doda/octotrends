@@ -1,3 +1,5 @@
+import { nameToEmoji } from "gemoji";
+
 export function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -31,8 +33,8 @@ export function compareBasic(a, b) {
 // }
 
 export function dataCompare(rowA, rowB, columnId) {
-  let dataA = (rowA.values[columnId]).added;
-  let dataB = (rowB.values[columnId]).added;
+  let dataA = rowA.values[columnId].added;
+  let dataB = rowB.values[columnId].added;
   return compareBasic(dataA, dataB);
 }
 
@@ -65,7 +67,6 @@ export function massageData(data) {
   });
 }
 
-
 export function equalsForSelect(rows, ids, filterValue) {
   return rows.filter((row) => {
     return ids.some((id) => {
@@ -74,6 +75,12 @@ export function equalsForSelect(rows, ids, filterValue) {
       return rowValue !== "" && (rowValue == filterValue || filterValue === "");
     });
   });
-};
+}
 
 equalsForSelect.autoRemove = (val) => val == null;
+
+export function replaceColonmoji(text) {
+  return text.replace(/:[^:\s]*(?:::[^:\s]*)*:/, function (match, capture) {
+    return nameToEmoji[match.slice(1, -1)] || match;
+  });
+}
