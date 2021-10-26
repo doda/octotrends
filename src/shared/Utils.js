@@ -44,7 +44,7 @@ export function massageData(data) {
   // Unfortunately have to combine added / baseline data into 1 value in
   // order to be able to groupby and recalculate growth rates
   return data.map((obj) => {
-    if (!containsChinese(obj.Description))
+    if (obj.Description.length > 0 && !containsChinese(obj.Description))
       return {
         Name: obj.Name,
         Stars: obj.Stars,

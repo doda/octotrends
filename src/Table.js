@@ -77,16 +77,24 @@ export function filterSmallerThan(rows, id, filterValue) {
   });
 }
 
-export function filterInRange(rows, id, filterValue) {
-  let [min, max] = filterValue;
+export function filterSizes(rows, id, filterValue) {
+  let sizes = {
+    XS: { min: 0, max: 1000 },
+    S: { min: 1000, max: 5000 },
+    M: { min: 5000, max: 20000 },
+    L: { min: 20000, max: Number.MAX_SAFE_INTEGER },
+  };
+  let activeFilters = Object.keys(filterValue).filter(
+    (key) => filterValue[key]
+  );
+
   return rows.filter((row) => {
     const rowValue = row.values[id];
-    return rowValue > min && rowValue < max;
+    return activeFilters.some(
+      (size) => rowValue > sizes[size].min && rowValue <= sizes[size].max
+    );
   });
 }
-
-let cmpArr = (a1, a2) =>
-  a1 != null && a2 != null && a1.every((v, i) => v === a2[i]);
 
 export function SizeFilter(props) {
   let {
@@ -94,33 +102,34 @@ export function SizeFilter(props) {
     state: { groupBy },
   } = props;
   if (groupBy.length > 0) return null;
+  let fValue = filterValue || {};
   return (
     <ButtonGroup className="justify-end sm:justify-center mt-3 pt-px sm:mt-px">
       <GroupButton
         left
-        active={cmpArr(filterValue, [0, 1000])}
-        onClick={(e) => setFilter([0, 1000])}
+        active={fValue.XS}
+        onClick={(e) => setFilter({ ...fValue, ...{ XS: !fValue.XS } })}
       >
-        S
+        &lt;1k
       </GroupButton>
       <GroupButton
-        active={cmpArr(filterValue, [1000, 4000])}
-        onClick={(e) => setFilter([1000, 4000])}
+        active={fValue.S}
+        onClick={(e) => setFilter({ ...fValue, ...{ S: !fValue.S } })}
       >
-        M
+        1k-5k
       </GroupButton>
       <GroupButton
-        active={cmpArr(filterValue, [4000, 400000])}
-        onClick={(e) => setFilter([4000, 400000])}
+        active={fValue.M}
+        onClick={(e) => setFilter({ ...fValue, ...{ M: !fValue.M } })}
       >
-        L
+        5k-20k
       </GroupButton>
       <GroupButton
         right
-        active={filterValue == null}
-        onClick={(e) => setFilter(undefined)}
+        active={fValue.L}
+        onClick={(e) => setFilter({ ...fValue, ...{ L: !fValue.L } })}
       >
-        Any
+        &gt;20k
       </GroupButton>
     </ButtonGroup>
   );
@@ -216,6 +225,7 @@ export function GrowthCell({ value }) {
 
 function Table({ columns, data }) {
   // Use the state and functions returned from useTable to build your UI
+  const starsFilterDefault = { XS: true, S: true, M: true, L: false };
   const {
     getTableProps,
     getTableBodyProps,
@@ -247,6 +257,7 @@ function Table({ columns, data }) {
             desc: true,
           },
         ],
+        filters: [{ id: "Stars", value: starsFilterDefault }],
         hiddenColumns: [
           "data",
           "Added7",
@@ -321,7 +332,7 @@ function Table({ columns, data }) {
 
                                     column.getGroupByToggleProps().onClick(e);
                                     if (!column.isGrouped) {
-                                      setFilter("Stars", undefined);
+                                      setFilter("Stars", starsFilterDefault);
                                       setFilter("Language", "");
                                     }
                                   }}
@@ -337,7 +348,7 @@ function Table({ columns, data }) {
 
                                     column.getGroupByToggleProps().onClick(e);
                                     if (!column.isGrouped) {
-                                      setFilter("Stars", undefined);
+                                      setFilter("Stars", starsFilterDefault);
                                       setFilter("Language", "");
                                     }
                                   }}

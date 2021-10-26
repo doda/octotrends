@@ -5,7 +5,7 @@ import Table, {
   LanguageCell,
   GrowthCell,
   SelectColumnFilter,
-  filterInRange,
+  filterSizes,
   SizeFilter,
 } from "./Table";
 import {
@@ -40,7 +40,7 @@ function App() {
       accessor: "Stars",
       Cell: StarCell,
       Filter: SizeFilter,
-      filter: filterInRange,
+      filter: filterSizes,
       sortType: "number",
       sortDescFirst: true,
       disableGroupBy: true,
