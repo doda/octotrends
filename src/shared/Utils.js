@@ -52,11 +52,8 @@ export function massageData(data) {
         Description: obj.Description,
         data: {
           Added7: obj.Added7,
-          Baseline7: obj.Baseline7,
           Added30: obj.Added30,
-          Baseline30: obj.Baseline30,
           Added90: obj.Added90,
-          Baseline90: obj.Baseline90,
         },
       };
   }).filter(Boolean);
