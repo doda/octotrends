@@ -50,21 +50,22 @@ export function massageData(data) {
   // Unfortunately have to combine added / baseline data into 1 value in
   // order to be able to groupby and recalculate growth rates
   return data.map((obj) => {
-    return {
-      Name: obj.Name,
-      Stars: obj.Stars,
-      Language: obj.Language,
-      Description: obj.Description,
-      data: {
-        Added7: obj.Added7,
-        Baseline7: obj.Baseline7,
-        Added30: obj.Added30,
-        Baseline30: obj.Baseline30,
-        Added90: obj.Added90,
-        Baseline90: obj.Baseline90,
-      },
-    };
-  });
+    if (!containsChinese(obj.Description))
+      return {
+        Name: obj.Name,
+        Stars: obj.Stars,
+        Language: obj.Language,
+        Description: obj.Description,
+        data: {
+          Added7: obj.Added7,
+          Baseline7: obj.Baseline7,
+          Added30: obj.Added30,
+          Baseline30: obj.Baseline30,
+          Added90: obj.Added90,
+          Baseline90: obj.Baseline90,
+        },
+      };
+  }).filter(Boolean);
 }
 
 export function equalsForSelect(rows, ids, filterValue) {
@@ -83,4 +84,10 @@ export function replaceColonmoji(text) {
   return text.replace(/:[^:\s]*(?:::[^:\s]*)*:/g, function (match, capture) {
     return nameToEmoji[match.slice(1, -1)] || match;
   });
+}
+
+export function containsChinese(text) {
+  return /[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]/.test(
+    text
+  );
 }
