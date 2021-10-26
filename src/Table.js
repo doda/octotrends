@@ -30,10 +30,10 @@ export function SelectColumnFilter(props) {
 
   // Calculate the options for filtering
   // using the preFilteredRows
-  const options = React.useMemo(() => {
+  let options = React.useMemo(() => {
     const options = new Set();
     preFilteredRows.forEach((row) => {
-      options.add(row.values[id]);
+      if (row.values[id] !== "") options.add(row.values[id]);
     });
     return [...options.values()];
   }, [id, preFilteredRows]);
@@ -85,7 +85,8 @@ export function filterInRange(rows, id, filterValue) {
   });
 }
 
-let cmpArr = (a1, a2) => a1 && a2 && a1.every((v, i) => v === a2[i]);
+let cmpArr = (a1, a2) =>
+  a1 != null && a2 != null && a1.every((v, i) => v === a2[i]);
 
 export function SizeFilter(props) {
   let {
@@ -94,23 +95,23 @@ export function SizeFilter(props) {
   } = props;
   if (groupBy.length > 0) return null;
   return (
-    <ButtonGroup style={{marginTop: 2}}>
+    <ButtonGroup style={{ marginTop: 2 }}>
       <GroupButton
         left
-        active={cmpArr(filterValue, [0, 2000])}
-        onClick={(e) => setFilter([0, 2000])}
+        active={cmpArr(filterValue, [0, 1000])}
+        onClick={(e) => setFilter([0, 1000])}
       >
         S
       </GroupButton>
       <GroupButton
-        active={cmpArr(filterValue, [2000, 10000])}
-        onClick={(e) => setFilter([2000, 10000])}
+        active={cmpArr(filterValue, [1000, 4000])}
+        onClick={(e) => setFilter([1000, 4000])}
       >
         M
       </GroupButton>
       <GroupButton
-        active={cmpArr(filterValue, [10000, 50000])}
-        onClick={(e) => setFilter([10000, 50000])}
+        active={cmpArr(filterValue, [4000, 400000])}
+        onClick={(e) => setFilter([4000, 400000])}
       >
         L
       </GroupButton>
@@ -187,7 +188,6 @@ export function StarCell({ value }) {
     </span>
   );
 }
-
 
 export function GrowthAccess(period) {
   return function get(stuff) {
@@ -303,7 +303,10 @@ function Table({ columns, data }) {
                         >
                           <div className="flex items-center justify-between">
                             {column.canGroupBy ? (
-                              <ButtonGroup className="absolute right-0" style={{top: "-3rem"}}>
+                              <ButtonGroup
+                                className="absolute right-0"
+                                style={{ top: "-3rem" }}
+                              >
                                 <GroupButton
                                   left
                                   active={!column.isGrouped}
