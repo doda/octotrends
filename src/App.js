@@ -48,10 +48,10 @@ function App() {
       Aggregated: ({ value }) => `${value} (total)`,
     },
     ...
-      [30, 180, 365].map((period) => ({
+      [7, 30, 90].map((period) => ({
         Header: (
           <span
-            title="Stars added over the last 180 days"
+            title={`Stars added over the last ${period} days`}
             className="whitespace-nowrap"
           >
             <GraphIcon /> {period}d

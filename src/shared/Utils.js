@@ -56,12 +56,12 @@ export function massageData(data) {
       Language: obj.Language,
       Description: obj.Description,
       data: {
+        Added7: obj.Added7,
+        Baseline7: obj.Baseline7,
         Added30: obj.Added30,
         Baseline30: obj.Baseline30,
-        Added180: obj.Added180,
-        Baseline180: obj.Baseline180,
-        Added365: obj.Added365,
-        Baseline365: obj.Baseline365,
+        Added90: obj.Added90,
+        Baseline90: obj.Baseline90,
       },
     };
   });
@@ -80,7 +80,7 @@ export function equalsForSelect(rows, ids, filterValue) {
 equalsForSelect.autoRemove = (val) => val == null;
 
 export function replaceColonmoji(text) {
-  return text.replace(/:[^:\s]*(?:::[^:\s]*)*:/, function (match, capture) {
+  return text.replace(/:[^:\s]*(?:::[^:\s]*)*:/g, function (match, capture) {
     return nameToEmoji[match.slice(1, -1)] || match;
   });
 }
