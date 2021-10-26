@@ -22,23 +22,23 @@ type Period struct {
 type DataTable map[string]TableItem
 
 type TableItem struct {
-	Baseline30  int
-	Added30     int
-	Baseline180 int
-	Added180    int
-	Baseline365 int
-	Added365    int
+	Baseline7  int
+	Added7     int
+	Baseline30 int
+	Added30    int
+	Baseline90 int
+	Added90    int
 }
 
 type JSONOutItem struct {
 	Name        string
 	Stars       int
+	Baseline7   int
+	Added7      int
 	Baseline30  int
 	Added30     int
-	Baseline180 int
-	Added180    int
-	Baseline365 int
-	Added365    int
+	Baseline90  int
+	Added90     int
 	Language    string
 	Topics      string
 	Description string
@@ -48,7 +48,7 @@ var RepoSelectQuery = `
 SELECT
 	repo_name
 FROM github_events
-WHERE event_type = 'WatchEvent' AND created_at > minus(now(), toIntervalDay(365))
+WHERE event_type = 'WatchEvent' AND created_at > minus(now(), toIntervalDay(90))
 GROUP BY repo_name
 HAVING (count() >= ?)
 `
@@ -85,9 +85,9 @@ func GetRepos(connect *sqlx.DB, minStars int) DataTable {
 // "added" (last) period. This allows us to calculate the % growth within the "added" period.
 func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 	periods := []Period{
-		{"1mo", 30},
-		{"6mo", 180},
-		{"1y", 365},
+		{"1mo", 7},
+		{"6mo", 30},
+		{"1y", 90},
 	}
 	for _, period := range periods {
 		var items []struct {
@@ -104,12 +104,12 @@ func GetGrowths(connect *sqlx.DB, data DataTable, minStars int) {
 			dataItem := data[item.RepoName]
 			base, added := int(item.Baseline), int(item.Added)
 			switch period.days {
+			case 7:
+				dataItem.Baseline7, dataItem.Added7 = base, added
 			case 30:
 				dataItem.Baseline30, dataItem.Added30 = base, added
-			case 180:
-				dataItem.Baseline180, dataItem.Added180 = base, added
-			case 365:
-				dataItem.Baseline365, dataItem.Added365 = base, added
+			case 90:
+				dataItem.Baseline90, dataItem.Added90 = base, added
 			}
 			data[item.RepoName] = dataItem
 		}
@@ -132,12 +132,12 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 		outItems = append(outItems, JSONOutItem{
 			Name:        repoName,
 			Stars:       IntValue(repoInfo.StargazersCount),
+			Baseline7:   tableItem.Baseline7,
+			Added7:      tableItem.Added7,
 			Baseline30:  tableItem.Baseline30,
 			Added30:     tableItem.Added30,
-			Baseline180: tableItem.Baseline180,
-			Added180:    tableItem.Added180,
-			Baseline365: tableItem.Baseline365,
-			Added365:    tableItem.Added365,
+			Baseline90:  tableItem.Baseline90,
+			Added90:     tableItem.Added90,
 			Language:    language,
 			Topics:      strings.Join(repoInfo.Topics, ", "),
 			Description: StringValue(repoInfo.Description),
@@ -167,7 +167,7 @@ func main() {
 		return
 	}
 
-	log.Println("Getting repos that have received more than", *minStars, "stars in the past year, and using ClickHouse URL:", *clickHouseURL)
+	log.Println("Getting repos that have received more than", *minStars, "stars in the past", 90, "days, and using ClickHouse URL:", *clickHouseURL)
 
 	connect, err := sqlx.Open("clickhouse", *clickHouseURL)
 	if err != nil {
