@@ -95,7 +95,7 @@ export function SizeFilter(props) {
   } = props;
   if (groupBy.length > 0) return null;
   return (
-    <ButtonGroup style={{ marginTop: 2 }}>
+    <ButtonGroup className="justify-end sm:justify-center mt-3 pt-px sm:mt-px">
       <GroupButton
         left
         active={cmpArr(filterValue, [0, 1000])}
@@ -268,7 +268,12 @@ function Table({ columns, data }) {
 
   return (
     <>
-      <div className="sm:flex sm:gap-x-2 h-9">
+      <div
+        className="sm:flex sm:gap-x-2 h-36 sm:h-full"
+        style={{
+          "min-height": "2.5rem",
+        }}
+      >
         {headerGroups.map((headerGroup) =>
           headerGroup.headers.map((column) =>
             column.Filter ? (
@@ -280,9 +285,9 @@ function Table({ columns, data }) {
         )}
       </div>
       {/* table */}
-      <div className="mt-4 flex flex-col relative">
+      <div className="mt-3 flex flex-col relative">
         <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
-          <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+          <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-6">
             <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
               <table
                 {...getTableProps()}
@@ -305,7 +310,7 @@ function Table({ columns, data }) {
                             {column.canGroupBy ? (
                               <ButtonGroup
                                 className="absolute right-0"
-                                style={{ top: "-3rem" }}
+                                style={{ top: "-3.25rem" }}
                               >
                                 <GroupButton
                                   left

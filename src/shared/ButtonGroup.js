@@ -6,8 +6,9 @@ export function ButtonGroup({ children, className, ...rest }) {
     <div
       role="group"
       className={classNames(
-        "flex justify-center rounded-sm text-sm",
-        className
+        "flex rounded-sm text-sm",
+        className.includes("justify-") ? "" : "justify-center",
+        className,
       )}
       {...rest}
     >
