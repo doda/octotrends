@@ -56,7 +56,7 @@ func RepoWorker(ctx context.Context, client *github.Client, jobs <-chan string, 
 func GetGHRepoInfo(data DataTable, GitHubToken string) map[string]github.Repository {
 	ctx, client := setUpGHClient(GitHubToken)
 	GHInfoMap := make(map[string]github.Repository)
-	maxConcurrency := 5
+	maxConcurrency := 2
 
 	numJobs := len(data)
 	jobs := make(chan string, numJobs)
