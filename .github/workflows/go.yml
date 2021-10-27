@@ -29,9 +29,6 @@ jobs:
         name: repo-data
         path: repo-data.json
 
-
-
-
   build-frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -43,11 +40,12 @@ jobs:
       with:
         node-version: '12'
     - run: npm install
-
     - uses: actions/download-artifact@v2
       with:
         name: repo-data
     - run: mv ../repo-data.json src/out.json
+    - run: d=$(date +"%B %d, %Y, %-I:%M %p E.T.")
+    - run: echo -n "{\"last_updated\":\"$d\"}" > src/data/last_updated.json
     - run: npm run build
     - name: Deploy with gh-pages
       run: |

@@ -16,6 +16,7 @@ import {
 } from "./shared/Utils";
 import { GraphIcon } from "@primer/octicons-react";
 import JSONData from "./out.json";
+import last_updated from "./data/last_updated.json";
 import logoSrc from "./images/octotrends-logo-black.png";
 
 function App() {
@@ -84,15 +85,19 @@ function App() {
         </div>
       </main>
       <div className="text-center text-sm">
-        Made by{" "}
-        <a
-          href="https://doda.co"
-          target="_blank"
-          rel="noreferrer"
-          className="text-blue-500"
-        >
-          Dominik Dabrowski
-        </a>
+        <div className="text-sm">Last updated {last_updated.last_updated}</div>
+
+        <div>
+          Made by{" "}
+          <a
+            href="https://doda.co"
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue-500"
+          >
+            Dominik Dabrowski
+          </a>
+        </div>
       </div>
     </div>
   );
