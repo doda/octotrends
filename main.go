@@ -14,11 +14,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Period struct {
-	name string
-	days int
-}
-
 type DataTable map[string]TableItem
 
 type TableItem struct {
