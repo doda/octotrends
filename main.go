@@ -127,12 +127,13 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 func main() {
 	minStars := flag.Int("minstars", 200, "Minimum stars received in past year to be included")
 	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true", "ClickHouse TCP URL")
-	githbToken := flag.String("ghp", "", "GitHub Access token")
+	githubToken := flag.String("ghp", "", "GitHub Access token")
+	nProc := flag.Int("n", 1, "Number of worker processes")
 	outFileName := flag.String("o", "out.json", "Output file name")
 
 	flag.Parse()
 
-	if *githbToken == "" {
+	if *githubToken == "" {
 		log.Println("Requires a GitHub Access Token")
 		return
 	}
@@ -148,7 +149,7 @@ func main() {
 	dataTable := GetGrowths(connect, *minStars)
 
 	// Get GitHub dataTable for these repos (either cached or anew)
-	GHInfoMap := GetGHRepoInfo(dataTable, *githbToken)
+	GHInfoMap := GetGHRepoInfo(dataTable, *githubToken, *nProc)
 
 	// Write out
 	WriteToJSON(dataTable, GHInfoMap, *outFileName)
