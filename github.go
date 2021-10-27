@@ -37,9 +37,11 @@ func RepoWorker(ctx context.Context, client *github.Client, jobs <-chan string, 
 		// Loop until we're not timed out
 		for {
 			repo, _, err = client.Repositories.Get(ctx, owner, name)
-			if _, ok := err.(*github.RateLimitError); ok {
-				log.Println("Hit rate limit, sleeping 1 minute")
-				time.Sleep(time.Minute)
+			if err != nil {
+				log.Println(err)
+				if _, ok := err.(*github.RateLimitError); ok {
+					time.Sleep(time.Minute)
+				}
 			} else {
 				break
 			}
