@@ -15,9 +15,10 @@ import {
   equalsForSelect,
 } from "./shared/Utils";
 import { GraphIcon } from "@primer/octicons-react";
-import JSONData from "./out.json";
-import last_updated from "./data/last_updated.json";
 import logoSrc from "./images/octotrends-logo-black.png";
+
+import JSONData from "./data/repo-data.json";
+import last_updated from "./data/last_updated.json";
 
 function App() {
   const columns = [

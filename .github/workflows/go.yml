@@ -45,6 +45,7 @@ jobs:
         name: repo-data
     - run: mv ../repo-data.json src/out.json
     - run: d=$(date +"%B %d, %Y, %-I:%M %p E.T.")
+    - run: mdkir src/data
     - run: echo -n "{\"last_updated\":\"$d\"}" > src/data/last_updated.json
     - run: npm run build
     - name: Deploy with gh-pages
