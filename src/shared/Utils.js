@@ -43,20 +43,23 @@ export function sumNumberObjects(leafValues) {
 export function massageData(data) {
   // Unfortunately have to combine added / baseline data into 1 value in
   // order to be able to groupby and recalculate growth rates
-  return data.map((obj) => {
-    if (obj.Description.length > 0 && !containsChinese(obj.Description))
-      return {
-        Name: obj.Name,
-        Stars: obj.Stars,
-        Language: obj.Language,
-        Description: obj.Description,
-        data: {
-          Added7: obj.Added7,
-          Added30: obj.Added30,
-          Added90: obj.Added90,
-        },
-      };
-  }).filter(Boolean);
+  return data
+    .map((obj) => {
+      if (obj.Description.length > 0 && !containsChinese(obj.Description))
+        return {
+          Name: obj.Name,
+          Stars: obj.Stars,
+          Language: obj.Language,
+          Description: obj.Description,
+          data: {
+            Added7: obj.Added7,
+            Added30: obj.Added30,
+            Added90: obj.Added90,
+          },
+        };
+      return null;
+    })
+    .filter(Boolean);
 }
 
 export function equalsForSelect(rows, ids, filterValue) {

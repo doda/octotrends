@@ -47,29 +47,27 @@ function App() {
       aggregate: "sum",
       Aggregated: ({ value }) => `${value} (total)`,
     },
-    ...
-      [7, 30, 90].map((period) => ({
-        Header: (
-          <span
-            title={`Stars added over the last ${period} days`}
-            className="whitespace-nowrap"
-          >
-            <GraphIcon /> {period}d
-          </span>
-        ),
-        id: `Growth${period}`,
-        accessor: (stuff) => ({
-          baseline: stuff.data[`Baseline${period}`],
-          added: stuff.data[`Added${period}`],
-        }),
-        Cell: GrowthCell,
-        disableGroupBy: true,
-        Filter: false,
-        sortType: dataCompare,
-        sortDescFirst: true,
-        aggregate: sumNumberObjects,
-      })),
-    ,
+    ...[7, 30, 90].map((period) => ({
+      Header: (
+        <span
+          title={`Stars added over the last ${period} days`}
+          className="whitespace-nowrap"
+        >
+          <GraphIcon /> {period}d
+        </span>
+      ),
+      id: `Growth${period}`,
+      accessor: (stuff) => ({
+        baseline: stuff.data[`Baseline${period}`],
+        added: stuff.data[`Added${period}`],
+      }),
+      Cell: GrowthCell,
+      disableGroupBy: true,
+      Filter: false,
+      sortType: dataCompare,
+      sortDescFirst: true,
+      aggregate: sumNumberObjects,
+    })),
   ];
 
   return (
@@ -85,6 +83,17 @@ function App() {
           <Table columns={columns} data={massageData(JSONData)} />
         </div>
       </main>
+      <div className="text-center text-sm">
+        Made by{" "}
+        <a
+          href="https://doda.co"
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-500"
+        >
+          Dominik Dabrowski
+        </a>
+      </div>
     </div>
   );
 }
