@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/octotrends/static/css/main.f89dedac.chunk.css",
+    "main.js": "/octotrends/static/js/main.c2a04c02.chunk.js",
+    "main.js.map": "/octotrends/static/js/main.c2a04c02.chunk.js.map",
+    "runtime-main.js": "/octotrends/static/js/runtime-main.07a28ab2.js",
+    "runtime-main.js.map": "/octotrends/static/js/runtime-main.07a28ab2.js.map",
+    "static/js/2.ce605f74.chunk.js": "/octotrends/static/js/2.ce605f74.chunk.js",
+    "static/js/2.ce605f74.chunk.js.map": "/octotrends/static/js/2.ce605f74.chunk.js.map",
+    "static/js/3.f820e139.chunk.js": "/octotrends/static/js/3.f820e139.chunk.js",
+    "static/js/3.f820e139.chunk.js.map": "/octotrends/static/js/3.f820e139.chunk.js.map",
+    "index.html": "/octotrends/index.html",
+    "static/css/main.f89dedac.chunk.css.map": "/octotrends/static/css/main.f89dedac.chunk.css.map",
+    "static/js/2.ce605f74.chunk.js.LICENSE.txt": "/octotrends/static/js/2.ce605f74.chunk.js.LICENSE.txt",
+    "static/media/octotrends-logo-black.2cd62cde.png": "/octotrends/static/media/octotrends-logo-black.2cd62cde.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.07a28ab2.js",
+    "static/js/2.ce605f74.chunk.js",
+    "static/css/main.f89dedac.chunk.css",
+    "static/js/main.c2a04c02.chunk.js"
+  ]
+}
