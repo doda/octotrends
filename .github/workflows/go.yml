@@ -43,9 +43,9 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: repo-data
+    - run: mkdir src/data
     - run: mv ../repo-data.json src/data/repo-data.json
     - run: d=$(date +"%B %d, %Y, %-I:%M %p E.T.")
-    - run: mkdir src/data
     - run: echo -n "{\"last_updated\":\"$d\"}" > src/data/last_updated.json
     - run: npm run build
     - name: Deploy with gh-pages
