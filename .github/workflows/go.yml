@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build:
+  build-backend:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -28,3 +28,23 @@ jobs:
       with:
         name: repo-data
         path: repo-data.json
+
+
+
+
+  build-frontend:
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '12'
+    - run: npm install
+    - run: npm test
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: repo-data
+    - run: mv repo-data.json src/out.json
