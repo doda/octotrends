@@ -48,4 +48,4 @@ jobs:
       with:
         name: repo-data
     - run: mv ../repo-data.json src/out.json
-    - run: npm deploy
+    - run: npm run deploy
