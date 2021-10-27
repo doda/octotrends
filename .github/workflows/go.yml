@@ -48,6 +48,7 @@ jobs:
       with:
         name: repo-data
     - run: mv ../repo-data.json src/out.json
+    - run: npm run build
     - name: Deploy with gh-pages
       run: |
         git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
