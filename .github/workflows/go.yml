@@ -48,4 +48,6 @@ jobs:
       with:
         name: repo-data
     - run: mv ../repo-data.json src/out.json
+    - run: git config --global user.email "dominik+github@doda.co"
+    - run: git config --global user.name "Dominik Dabrowski"
     - run: npm run deploy
