@@ -3,7 +3,6 @@ name: Go
 on:
   workflow_dispatch:
   schedule:
-    # * is a special character in YAML so you have to quote this string
     - cron:  '30 0 * * *'
 
 jobs:
@@ -17,13 +16,12 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.17
-        
 
-    - name: Run
+    - name: Request & assemble data
       env:
         GHP: ${{ secrets.GHP }}
       run: go run *.go --minstars 50 --ghp $GHP -o repo-data.json
-    - name: Upload out.json
+    - name: Upload repo-data.json
       uses: actions/upload-artifact@v2
       with:
         name: repo-data
@@ -44,10 +42,12 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: repo-data
-    - run: mkdir src/data
-    - run: mv ../repo-data.json src/data/repo-data.json
-    - run: echo "{\"last_updated\":\"$(date +"%B %d, %Y, %-I:%M %p UTC")\"}" > src/data/last_updated.json
-    - run: npm run build
+    - name: Build app
+      run: |
+        mkdir src/data
+        mv ../repo-data.json src/data/repo-data.json
+        echo "{\"last_updated\":\"$(date +"%B %d, %Y, %-I:%M %p UTC")\"}" > src/data/last_updated.json
+        npm run build
     - name: Deploy with gh-pages
       run: |
         git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
