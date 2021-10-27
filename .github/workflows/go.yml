@@ -22,7 +22,7 @@ jobs:
     - name: Run
       env:
         GHP: ${{ secrets.GHP }}
-      run: go run *.go --minstars 250 --ghp $GHP -o repo-data.json
+      run: go run *.go --minstars 50 --ghp $GHP -o repo-data.json
     - name: Upload out.json
       uses: actions/upload-artifact@v2
       with:

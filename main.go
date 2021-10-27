@@ -62,7 +62,7 @@ WHERE repo_name in
 	SELECT
 		repo_name
 	FROM github_events
-	WHERE event_type = 'WatchEvent' AND created_at > minus(right_now, toIntervalDay(90))
+	WHERE event_type = 'WatchEvent' AND created_at > minus(right_now, toIntervalDay(30))
 	GROUP BY repo_name
 	HAVING (count() >= ?)
 )
