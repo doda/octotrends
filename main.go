@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -75,7 +74,7 @@ func GetGrowths(connect *sqlx.DB, minStars int) DataTable {
 		Added90  int32  `db:"added90"`
 	}
 
-	fmt.Println("Running", StarsSelectQuery)
+	log.Println("Running", StarsSelectQuery)
 	if err := connect.Select(&items, StarsSelectQuery, minStars); err != nil {
 		log.Fatal(err)
 	}
