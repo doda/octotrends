@@ -64,7 +64,7 @@ GROUP BY repo_name
 `
 
 // Use ClickHouse to quickly aggregate how many people have starred the repo recently
-func GetGrowths(connect *sqlx.DB, minStars int) DataTable {
+func GetGrowths(connect *sqlx.DB, minStars int) (DataTable, error) {
 	data := DataTable{}
 
 	var items []struct {
@@ -76,7 +76,7 @@ func GetGrowths(connect *sqlx.DB, minStars int) DataTable {
 
 	log.Println("Running", StarsSelectQuery)
 	if err := connect.Select(&items, StarsSelectQuery, minStars); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	for _, item := range items {
@@ -87,11 +87,11 @@ func GetGrowths(connect *sqlx.DB, minStars int) DataTable {
 		data[item.RepoName] = dataItem
 	}
 	log.Printf("Aggregated %d items", len(items))
-	return data
+	return data, nil
 }
 
 // Write our accumulated & joined information out to JSON for the frontend to consume
-func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName string) {
+func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName string) error {
 	outItems := []JSONOutItem{}
 	for repoName, tableItem := range d {
 		repoInfo := jsonMap[repoName]
@@ -114,13 +114,13 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 	}
 	bytes, err := json.Marshal(outItems)
 	if err != nil {
-		log.Println("Error marshaling JSON", err)
+		return err
 	}
 	err = ioutil.WriteFile(outFileName, bytes, 0644)
 	if err != nil {
-		log.Println("Error saving JSON", err)
+		return err
 	}
-
+	return nil
 }
 
 func main() {
@@ -145,11 +145,17 @@ func main() {
 	}
 
 	// Get Growth dataTable from ClickHouse
-	dataTable := GetGrowths(connect, *minStars)
+	dataTable, err := GetGrowths(connect, *minStars)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Get GitHub dataTable for these repos (either cached or anew)
 	GHInfoMap := GetGHRepoInfo(dataTable, *githubToken, *nProc)
 
 	// Write out
-	WriteToJSON(dataTable, GHInfoMap, *outFileName)
+	err = WriteToJSON(dataTable, GHInfoMap, *outFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

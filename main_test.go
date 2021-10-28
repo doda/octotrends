@@ -24,7 +24,8 @@ func TestGetGrowths(t *testing.T) {
 
 	mock.ExpectQuery("SELECT repo_name, (.+) FROM").WithArgs(minStars).WillReturnRows(rows)
 
-	data := GetGrowths(sqlxDB, minStars)
+	data, err := GetGrowths(sqlxDB, minStars)
+	require.NoError(t, err)
 
 	require.Equal(t, data, DataTable{
 		"test/repo": TableItem{10, 20, 30},
@@ -33,6 +34,10 @@ func TestGetGrowths(t *testing.T) {
 }
 
 func TestWriteJSON(t *testing.T) {
+	dir, err := ioutil.TempDir("", "test")
+	require.NoError(t, err)
+	defer os.RemoveAll(dir)
+
 	data := DataTable{
 		"test/repo": TableItem{10, 20, 30},
 	}
@@ -45,12 +50,11 @@ func TestWriteJSON(t *testing.T) {
 			Topics:          []string{"a", "b"},
 		},
 	}
-	dir, err := ioutil.TempDir("", "store-test")
-	require.NoError(t, err)
-	defer os.RemoveAll(dir)
 
 	fName := dir + "/test.json"
-	WriteToJSON(data, jsonMap, fName)
+	err = WriteToJSON(data, jsonMap, fName)
+	require.NoError(t, err)
+
 	dat, _ := os.ReadFile(fName)
 	require.Equal(t, string(dat),
 		`[{"Name":"test/repo","Stars":55,"Added7":10,"Added30":20,"Added90":30,"Language":"Go","Topics":"a, b","Description":""}]`,
