@@ -10,10 +10,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func setUpGHClient(GitHubToken string) (context.Context, *github.Client) {
+func setUpGHClient(githubToken string) (context.Context, *github.Client) {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: GitHubToken},
+		&oauth2.Token{AccessToken: githubToken},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
@@ -55,8 +55,8 @@ func RepoWorker(ctx context.Context, client *github.Client, jobs <-chan string, 
 	}
 }
 
-func GetGHRepoInfo(data DataTable, GitHubToken string, nProc int) map[string]github.Repository {
-	ctx, client := setUpGHClient(GitHubToken)
+func GetGHRepoInfo(data DataTable, githubToken string, nProc int) map[string]github.Repository {
+	ctx, client := setUpGHClient(githubToken)
 	GHInfoMap := make(map[string]github.Repository)
 
 	numJobs := len(data)
