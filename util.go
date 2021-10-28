@@ -11,7 +11,7 @@ var BLOCKEDREPOS = []string{
 	"donnemartin/system-design-primer",
 }
 
-func RepoLangBlocked(name string) bool {
+func RepoLangDoesntCount(name string) bool {
 	for _, blocked := range BLOCKEDREPOS {
 		if blocked == name {
 			return true

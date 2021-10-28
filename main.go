@@ -97,7 +97,7 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 		repoInfo := jsonMap[repoName]
 
 		language := StringValue(repoInfo.Language)
-		if RepoLangBlocked(repoName) {
+		if RepoLangDoesntCount(repoName) {
 			language = ""
 		}
 
@@ -137,7 +137,7 @@ func main() {
 		return
 	}
 
-	log.Printf("Getting repos that have received more than %d stars in the past 90 days, and using ClickHouse URL: %s", *minStars, *clickHouseURL)
+	log.Printf("Getting repos that have received more than %d stars in the past 90 days, and using ClickHouse URL: %s\n", *minStars, *clickHouseURL)
 
 	connect, err := sqlx.Open("clickhouse", *clickHouseURL)
 	if err != nil {
