@@ -41,10 +41,10 @@ func RepoWorker(ctx context.Context, client *github.Client, jobs <-chan string, 
 				log.Println(err)
 				if _, ok := err.(*github.RateLimitError); ok {
 					time.Sleep(time.Minute)
+					continue
 				}
-			} else {
-				break
 			}
+			break
 		}
 		if repo == nil {
 			log.Println("Repo is nil:", repoName)
