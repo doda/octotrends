@@ -13,7 +13,8 @@ import (
 
 func TestGetGrowths(t *testing.T) {
 	mockDB, mock, _ := sqlmock.New()
-	minStars := 2
+	numRepos := 2
+	lookback := 30
 	sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
 	rows := sqlmock.NewRows([]string{
 		"repo_name",
@@ -22,9 +23,9 @@ func TestGetGrowths(t *testing.T) {
 		"added90",
 	}).AddRow("test/repo", 10, 20, 30)
 
-	mock.ExpectQuery("SELECT repo_name, (.+) FROM").WithArgs(minStars).WillReturnRows(rows)
+	mock.ExpectQuery("SELECT repo_name, (.+) FROM").WithArgs(lookback, numRepos).WillReturnRows(rows)
 
-	data, err := GetGrowths(sqlxDB, minStars)
+	data, err := GetGrowths(sqlxDB, lookback, numRepos)
 	require.NoError(t, err)
 
 	require.Equal(t, data, DataTable{

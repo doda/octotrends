@@ -56,15 +56,16 @@ WHERE repo_name in
 	SELECT
 		repo_name
 	FROM github_events
-	WHERE event_type = 'WatchEvent' AND created_at > minus(right_now, toIntervalDay(30))
+	WHERE event_type = 'WatchEvent' AND created_at > minus(right_now, toIntervalDay(?))
 	GROUP BY repo_name
-	HAVING (count() >= ?)
+	ORDER BY count() DESC
+	LIMIT ?
 )
 GROUP BY repo_name
 `
 
 // Use ClickHouse to quickly aggregate how many people have starred the repo recently
-func GetGrowths(connect *sqlx.DB, minStars int) (DataTable, error) {
+func GetGrowths(connect *sqlx.DB, lookback int, numRepos int) (DataTable, error) {
 	data := DataTable{}
 
 	var items []struct {
@@ -75,7 +76,7 @@ func GetGrowths(connect *sqlx.DB, minStars int) (DataTable, error) {
 	}
 
 	log.Println("Running", StarsSelectQuery)
-	if err := connect.Select(&items, StarsSelectQuery, minStars); err != nil {
+	if err := connect.Select(&items, StarsSelectQuery, lookback, numRepos); err != nil {
 		return nil, err
 	}
 
@@ -124,7 +125,8 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 }
 
 func main() {
-	minStars := flag.Int("minstars", 200, "Minimum stars received in past year to be included")
+	numRepos := flag.Int("numrepos", 5000, "Number of repos to get")
+	lookback := flag.Int("lookback", 30, "Number of days to lookback to determine which repos to get")
 	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true", "ClickHouse TCP URL")
 	githubToken := flag.String("ghp", "", "GitHub Access token")
 	nProc := flag.Int("n", 1, "Number of worker processes")
@@ -137,7 +139,7 @@ func main() {
 		return
 	}
 
-	log.Printf("Getting repos that have received more than %d stars in the past 90 days, and using ClickHouse URL: %s\n", *minStars, *clickHouseURL)
+	log.Printf("Getting %d repos that have received the most stars in the past %d days, and using ClickHouse URL: %s\n", *lookback, *numRepos, *clickHouseURL)
 
 	connect, err := sqlx.Open("clickhouse", *clickHouseURL)
 	if err != nil {
@@ -145,7 +147,7 @@ func main() {
 	}
 
 	// Get Growth dataTable from ClickHouse
-	dataTable, err := GetGrowths(connect, *minStars)
+	dataTable, err := GetGrowths(connect, *numRepos, *lookback)
 	if err != nil {
 		log.Fatal(err)
 	}
