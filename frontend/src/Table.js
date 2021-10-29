@@ -210,7 +210,7 @@ export function GrowthCell({ value }) {
 
 function Table({ columns, data }) {
   // Use the state and functions returned from useTable to build your UI
-  const starsFilterDefault = { XS: true, S: true, M: true, L: true };
+  const starsFilterDefault = { XS: true, S: true, M: true, L: false };
   const {
     getTableProps,
     getTableBodyProps,
