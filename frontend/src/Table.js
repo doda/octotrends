@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   useTable,
   useFilters,
@@ -275,7 +275,27 @@ function Table({ columns, data }) {
     useExpanded,
     usePagination
   );
-  // Render the UI for your table
+  useEffect(() => {
+    document.onkeydown = function (e) {
+      switch (e.which) {
+        case 37: // left
+          previousPage();
+          break;
+
+        case 39: // right
+          nextPage();
+          break;
+
+        default:
+          return; // exit this handler for other keys
+      }
+      e.preventDefault(); // prevent the default action (scroll / move caret)
+    };
+
+    return () => {
+      // cleanup
+    };
+  }, []);
 
   return (
     <>
