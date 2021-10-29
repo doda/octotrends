@@ -287,7 +287,7 @@ function Table({ columns, data }) {
       <div
         className="sm:flex sm:gap-x-2 h-36 sm:h-full"
         style={{
-          "min-height": "2.5rem",
+          "minHeight": "2.65rem",
         }}
       >
         {headerGroups.map((headerGroup) =>
