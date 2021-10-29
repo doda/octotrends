@@ -19,7 +19,7 @@ jobs:
     - name: Request & assemble data
       env:
         GHP: ${{ secrets.GHP }}
-      run: go run main.go github.go util.go --numrepos 5000 --ghp $GHP -o repo-data.json
+      run: go run main.go github.go util.go --numrepos 10 --ghp $GHP -o repo-data.json
     - name: Upload repo-data.json
       uses: actions/upload-artifact@v2
       with:
@@ -28,4 +28,10 @@ jobs:
 
   build-frontend:
     needs: build-backend
-    uses: dodafin/octotrends/.github/workflows/frontend.yml@main
+    runs-on: ubuntu-latest
+    steps:
+    - name: Invoke frontend workflow
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: frontend
+        token: ${{ secrets.GHP }}

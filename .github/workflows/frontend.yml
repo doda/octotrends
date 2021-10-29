@@ -21,8 +21,7 @@ jobs:
       uses: dawidd6/action-download-artifact@v2
       with:
         name: repo-data
-        workflow: backend
-        workflow_conclusion: success
+        workflow: backend.yml
     - name: Build app
       run: |
         mkdir src/data
