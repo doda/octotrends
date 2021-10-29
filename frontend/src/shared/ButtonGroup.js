@@ -17,17 +17,17 @@ export function ButtonGroup({ children, className, ...rest }) {
   );
 }
 
-export function GroupButton({ children, className, dir, ...rest }) {
+export function GroupButton({ children, className, dir, left, right, active, ...rest }) {
   return (
     <button
       className={classNames(
         "border border-blue-500 px-4 py-2 mx-0 outline-none focus:shadow-outline",
-        rest.left
+        left
           ? "border-r-0 rounded-l-sm"
-          : rest.right
+          : right
           ? "border-l-0 rounded-r-sm"
           : "border-r-0 border-l-0",
-        rest.active ? "bg-blue-500 text-white" : "bg-white text-blue-500",
+        active ? "bg-blue-500 text-white" : "bg-white text-blue-500",
         className
       )}
       {...rest}

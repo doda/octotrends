@@ -266,7 +266,12 @@ function Table({ columns, data }) {
         case 37: // left
           previousPage();
           break;
-
+        case 35: // end
+          gotoPage(pageCount - 1);
+          break;
+        case 36: // home
+          gotoPage(0);
+          break;
         case 39: // right
           nextPage();
           break;
@@ -276,10 +281,6 @@ function Table({ columns, data }) {
       }
       e.preventDefault(); // prevent the default action (scroll / move caret)
     };
-
-    return () => {
-      // cleanup
-    };
   }, []);
 
   return (
@@ -287,7 +288,7 @@ function Table({ columns, data }) {
       <div
         className="sm:flex sm:gap-x-2 h-36 sm:h-full"
         style={{
-          "minHeight": "2.65rem",
+          minHeight: "2.65rem",
         }}
       >
         {headerGroups.map((headerGroup) =>
