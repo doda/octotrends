@@ -25,3 +25,6 @@ jobs:
       with:
         name: repo-data
         path: repo-data.json
+
+  build-frontend:
+    uses: dodafin/octotrends/.github/workflows/frontend.yml
