@@ -1,0 +1,33 @@
+name: Go
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '12'
+    - run: npm install
+    - uses: actions/download-artifact@v2
+      with:
+        name: repo-data
+    - name: Build app
+      run: |
+        mkdir src/data
+        mv ../repo-data.json src/data/repo-data.json
+        echo "{\"last_updated\":\"$(date +"%B %d, %Y, %-I:%M %p UTC")\"}" > src/data/last_updated.json
+        npm run build
+    - name: Deploy with gh-pages
+      run: |
+        git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+        echo 'octotrends.com' > ./build/CNAME
+        npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
