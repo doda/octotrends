@@ -198,21 +198,6 @@ export function StarCell({ value }) {
   );
 }
 
-export function GrowthAccess(period) {
-  return function get(stuff) {
-    // if (value
-    let { value, column, row } = stuff;
-    // column
-    if (!column) return null;
-    let baseline = `Baseline${period}`;
-    let added = `Added${period}`;
-    let v = row.values;
-    value = (v[baseline] + v[added]) / v[baseline];
-    // Have to get creative here ...
-    return value;
-  };
-}
-
 export function GrowthCell({ value }) {
   // value = growthCalc(value);
   return value === 0 ? null : (
