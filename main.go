@@ -139,7 +139,7 @@ func main() {
 		return
 	}
 
-	log.Printf("Getting %d repos that have received the most stars in the past %d days, and using ClickHouse URL: %s\n", *lookback, *numRepos, *clickHouseURL)
+	log.Printf("Getting %d repos that have received the most stars in the past %d days, and using ClickHouse URL: %s\n", *numRepos, *lookback, *clickHouseURL)
 
 	connect, err := sqlx.Open("clickhouse", *clickHouseURL)
 	if err != nil {
