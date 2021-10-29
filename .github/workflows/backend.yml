@@ -1,4 +1,4 @@
-name: Go
+name: backend
 
 on:
   workflow_dispatch:
