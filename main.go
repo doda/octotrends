@@ -147,7 +147,7 @@ func main() {
 	}
 
 	// Get Growth dataTable from ClickHouse
-	dataTable, err := GetGrowths(connect, *numRepos, *lookback)
+	dataTable, err := GetGrowths(connect, *lookback, *numRepos)
 	if err != nil {
 		log.Fatal(err)
 	}
