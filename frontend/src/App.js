@@ -49,7 +49,7 @@ function App() {
       aggregate: "sum",
       Aggregated: ({ value }) => `${value} (total)`,
     },
-    ...[7, 30, 90].map((period) => ({
+    ...[10, 30, 90].map((period) => ({
       Header: (
         <span
           title={`Stars added over the last ${period} days`}

@@ -18,7 +18,7 @@ func TestGetGrowths(t *testing.T) {
 	sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
 	rows := sqlmock.NewRows([]string{
 		"repo_name",
-		"added7",
+		"added10",
 		"added30",
 		"added90",
 	}).AddRow("test/repo", 10, 20, 30)
@@ -58,6 +58,6 @@ func TestWriteJSON(t *testing.T) {
 
 	dat, _ := os.ReadFile(fName)
 	require.Equal(t, string(dat),
-		`[{"Name":"test/repo","Stars":55,"Added7":10,"Added30":20,"Added90":30,"Language":"Go","Topics":"a, b","Description":""}]`,
+		`[{"Name":"test/repo","Stars":55,"Added10":10,"Added30":20,"Added90":30,"Language":"Go","Topics":"a, b","Description":""}]`,
 	)
 }

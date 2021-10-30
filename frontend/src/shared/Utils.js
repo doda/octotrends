@@ -52,7 +52,7 @@ export function massageData(data) {
           Language: obj.Language,
           Description: obj.Description,
           data: {
-            Added7: obj.Added7,
+            Added10: obj.Added10,
             Added30: obj.Added30,
             Added90: obj.Added90,
           },

@@ -245,12 +245,9 @@ function Table({ columns, data }) {
         filters: [{ id: "Stars", value: starsFilterDefault }],
         hiddenColumns: [
           "data",
-          "Added7",
-          "Baseline7",
+          "Added10",
           "Added30",
-          "Baseline30",
           "Added90",
-          "Baseline90",
         ],
       },
     },

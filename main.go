@@ -16,7 +16,7 @@ import (
 type DataTable map[string]TableItem
 
 type TableItem struct {
-	Added7  int
+	Added10 int
 	Added30 int
 	Added90 int
 }
@@ -24,7 +24,7 @@ type TableItem struct {
 type JSONOutItem struct {
 	Name        string
 	Stars       int
-	Added7      int
+	Added10     int
 	Added30     int
 	Added90     int
 	Language    string
@@ -38,7 +38,7 @@ WITH
 	dateDiff('day', created_at_sub, right_now) as days
 SELECT
 	repo_name,
-	sum(days <= 7) as added7,
+	sum(days <= 10) as added10,
 	sum(days <= 30) as added30,
 	sum(days <= 90) as added90
 FROM 
@@ -70,7 +70,7 @@ func GetGrowths(connect *sqlx.DB, lookback int, numRepos int) (DataTable, error)
 
 	var items []struct {
 		RepoName string `db:"repo_name"`
-		Added7   int32  `db:"added7"`
+		Added10  int32  `db:"added10"`
 		Added30  int32  `db:"added30"`
 		Added90  int32  `db:"added90"`
 	}
@@ -82,7 +82,7 @@ func GetGrowths(connect *sqlx.DB, lookback int, numRepos int) (DataTable, error)
 
 	for _, item := range items {
 		dataItem := data[item.RepoName]
-		dataItem.Added7 = int(item.Added7)
+		dataItem.Added10 = int(item.Added10)
 		dataItem.Added30 = int(item.Added30)
 		dataItem.Added90 = int(item.Added90)
 		data[item.RepoName] = dataItem
@@ -101,11 +101,10 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 		if RepoLangDoesntCount(repoName) {
 			language = ""
 		}
-
 		outItems = append(outItems, JSONOutItem{
 			Name:        repoName,
 			Stars:       IntValue(repoInfo.StargazersCount),
-			Added7:      tableItem.Added7,
+			Added10:     tableItem.Added10,
 			Added30:     tableItem.Added30,
 			Added90:     tableItem.Added90,
 			Language:    language,
