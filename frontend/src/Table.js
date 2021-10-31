@@ -238,7 +238,7 @@ function Table({ columns, data }) {
         pageSize: 10,
         sortBy: [
           {
-            id: "Growth30",
+            id: "Growth10",
             desc: true,
           },
         ],
