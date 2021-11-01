@@ -1,4 +1,4 @@
-<img src="https://github.com/dodafin/octotrends-frontend/blob/main/src/images/octotrends-logo-black.png?raw=true" width="350" alt="OctoTrends logo">
+<img src="https://github.com/dodafin/octotrends/blob/main/frontend/src/images/octotrends-logo-black.png?raw=true" width="350" alt="OctoTrends logo">
 
 ## [octotrends.com](https://octotrends.com/)
 
