@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/static/css/main.c044cf9b.chunk.css",
-    "main.js": "/static/js/main.915961dc.chunk.js",
-    "main.js.map": "/static/js/main.915961dc.chunk.js.map",
+    "main.css": "/static/css/main.2ee41498.chunk.css",
+    "main.js": "/static/js/main.4e05effb.chunk.js",
+    "main.js.map": "/static/js/main.4e05effb.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.7c1becab.js",
     "runtime-main.js.map": "/static/js/runtime-main.7c1becab.js.map",
     "static/js/2.df6cc6b1.chunk.js": "/static/js/2.df6cc6b1.chunk.js",
     "static/js/2.df6cc6b1.chunk.js.map": "/static/js/2.df6cc6b1.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/main.c044cf9b.chunk.css.map": "/static/css/main.c044cf9b.chunk.css.map",
+    "static/css/main.2ee41498.chunk.css.map": "/static/css/main.2ee41498.chunk.css.map",
     "static/js/2.df6cc6b1.chunk.js.LICENSE.txt": "/static/js/2.df6cc6b1.chunk.js.LICENSE.txt",
     "static/media/octotrends-logo-black.2cd62cde.png": "/static/media/octotrends-logo-black.2cd62cde.png"
   },
   "entrypoints": [
     "static/js/runtime-main.7c1becab.js",
     "static/js/2.df6cc6b1.chunk.js",
-    "static/css/main.c044cf9b.chunk.css",
-    "static/js/main.915961dc.chunk.js"
+    "static/css/main.2ee41498.chunk.css",
+    "static/js/main.4e05effb.chunk.js"
   ]
 }
