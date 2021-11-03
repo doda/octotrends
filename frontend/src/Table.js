@@ -140,7 +140,7 @@ export function NameCell({ value, row }) {
   let [owner, name] = value.split("/");
   let description = replaceColonmoji((row.original || {}).Description);
   return (
-    <div className="truncate" style={{ width: 300 }}>
+    <div className="truncate w-60 lg:w-96">
       <a
         target="_blank"
         rel="noreferrer"
@@ -177,7 +177,7 @@ export function LanguageCell({ value, setFilter, columns, state }) {
   };
 
   return (
-    <div className="text-sm truncate whitespace-nowrap w-32">
+    <div className="text-sm truncate whitespace-nowrap w-24 lg:w-28">
       <a {...linkProps}>
         {" "}
         <span style={{ color: (Colors[value] || {}).color }}>
@@ -201,10 +201,10 @@ export function StarCell({ value }) {
 export function GrowthCell({ value }) {
   // value = growthCalc(value);
   return value === 0 ? null : (
-    <span className="text-gray-500 text-sm">
+    <div className="text-gray-500 text-sm w-4">
       {value.added > 0 ? "+" : ""}
       {humanNumber(value.added)}
-    </span>
+    </div>
   );
 }
 
@@ -315,7 +315,7 @@ function Table({ columns, data }) {
                         // we can add them into the header props
                         <th
                           scope="col"
-                          className="group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          className="group px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           {...column.getHeaderProps(
                             column.getSortByToggleProps()
                           )}
