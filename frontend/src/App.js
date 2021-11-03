@@ -91,7 +91,7 @@ function App() {
       <div className="text-center text-sm">
         <div className="text-sm">Last updated {last_updated.last_updated}</div>
 
-        <div>
+        <div className="pb-5">
           Made by{" "}
           <a
             href="https://doda.co"
