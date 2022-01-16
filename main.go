@@ -126,7 +126,7 @@ func WriteToJSON(d DataTable, jsonMap map[string]github.Repository, outFileName 
 func main() {
 	numRepos := flag.Int("numrepos", 5000, "Number of repos to get")
 	lookback := flag.Int("lookback", 30, "Number of days to lookback to determine which repos to get")
-	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=explorer&secure=true", "ClickHouse TCP URL")
+	clickHouseURL := flag.String("clickhouse", "tcp://gh-api.clickhouse.tech:9440?debug=false&username=play&secure=true", "ClickHouse TCP URL")
 	githubToken := flag.String("ghp", "", "GitHub Access token")
 	nProc := flag.Int("n", 1, "Number of worker processes")
 	outFileName := flag.String("o", "out.json", "Output file name")
