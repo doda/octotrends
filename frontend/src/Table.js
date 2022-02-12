@@ -54,7 +54,7 @@ export function GlobalFilter({
 // a unique option from a list
 export function SelectColumnFilter(props) {
   let {
-    column: { filterValue, setFilter, preFilteredRows, id, render },
+    column: { filterValue, setFilter, preFilteredRows, id },
     state: { groupBy },
   } = props;
 
