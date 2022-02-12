@@ -6,6 +6,8 @@ import {
   usePagination,
   useGroupBy,
   useExpanded,
+  useAsyncDebounce,
+  useGlobalFilter,
 } from "react-table";
 import {
   ChevronDoubleLeftIcon,
@@ -19,6 +21,34 @@ import { humanNumber, replaceColonmoji } from "./shared/Utils";
 import { SortIcon, SortUpIcon, SortDownIcon } from "./shared/Icons";
 import { StarIcon, SquareFillIcon } from "@primer/octicons-react";
 import Colors from "./colors.json";
+
+// Define a default UI for filtering
+export function GlobalFilter({
+  preGlobalFilteredRows,
+  globalFilter,
+  setGlobalFilter,
+}) {
+  const count = preGlobalFilteredRows.length;
+  const [value, setValue] = React.useState(globalFilter);
+  const onChange = useAsyncDebounce((value) => {
+    setGlobalFilter(value || undefined);
+  }, 200);
+
+  return (
+    <label className="flex gap-x-2 items-baseline">
+      <input
+        type="text"
+        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        value={value || ""}
+        onChange={(e) => {
+          setValue(e.target.value);
+          onChange(e.target.value);
+        }}
+        placeholder={`Search ${count} records...`}
+      />
+    </label>
+  );
+}
 
 // This is a custom filter UI for selecting
 // a unique option from a list
@@ -42,7 +72,6 @@ export function SelectColumnFilter(props) {
   // Render a multi-select box
   return (
     <label className="flex gap-x-2 items-baseline">
-      <span className="text-gray-700">{render("Header")}: </span>
       <select
         className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 w-48"
         name={id}
@@ -52,7 +81,7 @@ export function SelectColumnFilter(props) {
           setFilter(e.target.value || undefined);
         }}
       >
-        <option value="">All</option>
+        <option value="">All languages</option>
         {options.map((option, i) => (
           <option key={i} value={option}>
             {option}
@@ -230,6 +259,8 @@ function Table({ columns, data }) {
     setPageSize,
     setFilter,
     state,
+    preGlobalFilteredRows,
+    setGlobalFilter,
   } = useTable(
     {
       columns,
@@ -243,15 +274,11 @@ function Table({ columns, data }) {
           },
         ],
         filters: [{ id: "Stars", value: starsFilterDefault }],
-        hiddenColumns: [
-          "data",
-          "Added10",
-          "Added30",
-          "Added90",
-        ],
+        hiddenColumns: ["data", "Added10", "Added30", "Added90"],
       },
     },
     useFilters,
+    useGlobalFilter,
     useGroupBy,
     useSortBy,
     useExpanded,
@@ -279,7 +306,9 @@ function Table({ columns, data }) {
       e.preventDefault(); // prevent the default action (scroll / move caret)
     };
   });
-
+  const languagesGrouped = headerGroups[0].headers.find(
+    (x) => x.Header === "Language"
+  ).isGrouped;
   return (
     <>
       <div
@@ -288,6 +317,14 @@ function Table({ columns, data }) {
           minHeight: "2.65rem",
         }}
       >
+        {languagesGrouped ? null : (
+          <GlobalFilter
+            preGlobalFilteredRows={preGlobalFilteredRows}
+            globalFilter={state.globalFilter}
+            setGlobalFilter={setGlobalFilter}
+          />
+        )}
+
         {headerGroups.map((headerGroup) =>
           headerGroup.headers.map((column) =>
             column.Filter ? (
