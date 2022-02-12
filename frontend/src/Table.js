@@ -133,7 +133,7 @@ export function SizeFilter(props) {
   if (groupBy.length > 0) return null;
   let fValue = filterValue || {};
   return (
-    <ButtonGroup className="justify-end sm:justify-center mt-3 pt-px sm:mt-px">
+    <ButtonGroup className="justify-start mt-3 pt-px md:mt-px">
       <GroupButton
         left
         active={fValue.XS}
@@ -312,7 +312,7 @@ function Table({ columns, data }) {
   return (
     <>
       <div
-        className="sm:flex sm:gap-x-2 h-36 sm:h-full"
+        className="md:flex md:gap-x-2 h-48 md:h-full"
         style={{
           minHeight: "2.65rem",
         }}
@@ -328,7 +328,7 @@ function Table({ columns, data }) {
         {headerGroups.map((headerGroup) =>
           headerGroup.headers.map((column) =>
             column.Filter ? (
-              <div className="mt-2 sm:mt-0" key={column.id}>
+              <div className="mt-2 md:mt-0" key={column.id}>
                 {column.render("Filter")}
               </div>
             ) : null
@@ -337,9 +337,9 @@ function Table({ columns, data }) {
       </div>
       {/* table */}
       <div className="mt-3 flex flex-col relative">
-        <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
-          <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-6">
-            <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+        <div className="-my-2 overflow-x-auto -mx-4 md:-mx-6 lg:-mx-8">
+          <div className="py-2 align-middle inline-block min-w-full md:px-6 lg:px-6">
+            <div className="shadow overflow-hidden border-b border-gray-200 md:rounded-lg">
               <table
                 {...getTableProps()}
                 className="min-w-full divide-y divide-gray-200"
@@ -360,7 +360,7 @@ function Table({ columns, data }) {
                           <div className="flex items-center justify-between">
                             {column.canGroupBy ? (
                               <ButtonGroup
-                                className="absolute right-0"
+                                className="absolute md:left-auto md:right-0 right-auto left-0"
                                 style={{ top: "-3.25rem" }}
                               >
                                 <GroupButton
@@ -454,7 +454,7 @@ function Table({ columns, data }) {
       </div>
       {/* Pagination */}
       <div className="py-3 flex items-center justify-between">
-        <div className="flex-1 flex justify-between sm:hidden">
+        <div className="flex-1 flex justify-between md:hidden">
           <Button onClick={() => previousPage()} disabled={!canPreviousPage}>
             Previous
           </Button>
@@ -462,7 +462,7 @@ function Table({ columns, data }) {
             Next
           </Button>
         </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div className="hidden md:flex-1 md:flex md:items-center md:justify-between">
           <div className="flex gap-x-2 items-baseline">
             <span className="text-sm text-gray-700">
               Page <span className="font-medium">{state.pageIndex + 1}</span> of{" "}

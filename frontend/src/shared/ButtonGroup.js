@@ -8,7 +8,7 @@ export function ButtonGroup({ children, className, ...rest }) {
       className={classNames(
         "flex rounded-sm text-sm",
         className.includes("justify-") ? "" : "justify-center",
-        className,
+        className
       )}
       {...rest}
     >
@@ -17,11 +17,19 @@ export function ButtonGroup({ children, className, ...rest }) {
   );
 }
 
-export function GroupButton({ children, className, dir, left, right, active, ...rest }) {
+export function GroupButton({
+  children,
+  className,
+  dir,
+  left,
+  right,
+  active,
+  ...rest
+}) {
   return (
     <button
       className={classNames(
-        "border border-blue-500 px-4 py-2 mx-0 outline-none focus:shadow-outline",
+        "border border-blue-500 lg:px-4 px-2 py-2 mx-0 outline-none focus:shadow-outline",
         left
           ? "border-r-0 rounded-l-sm"
           : right
