@@ -21,7 +21,7 @@ jobs:
         GHP: ${{ secrets.GHP }}
       run: go run main.go github.go util.go --numrepos 4800 --ghp $GHP -o repo-data.json
     - name: Upload repo-data.json
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: repo-data
         path: repo-data.json
