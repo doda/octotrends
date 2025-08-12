@@ -49,7 +49,7 @@ FROM
 		any(created_at) as created_at_sub
 	FROM github_events
 	WHERE event_type = 'WatchEvent' 
-		AND created_at > minus(right_now, toIntervalDay(90))
+		AND created_at > now() - INTERVAL 90 DAY
 	GROUP BY repo_name, actor_login
 )
 WHERE repo_name in 
@@ -57,7 +57,7 @@ WHERE repo_name in
 	SELECT
 		repo_name
 	FROM github_events
-	WHERE event_type = 'WatchEvent' AND created_at > minus(right_now, toIntervalDay(?))
+	WHERE event_type = 'WatchEvent' AND created_at > now() - INTERVAL ? DAY
 	GROUP BY repo_name
 	ORDER BY count() DESC
 	LIMIT ?
