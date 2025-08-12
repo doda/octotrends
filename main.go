@@ -34,35 +34,25 @@ type JSONOutItem struct {
 
 var StarsSelectQuery = `
 WITH 
-	(SELECT max(created_at) FROM github_events WHERE created_at > now() - INTERVAL 100 DAY) as right_now,
-	dateDiff('day', created_at_sub, right_now) as days
+	interesting_repos AS (
+		SELECT repo_name
+		FROM github_events
+		WHERE event_type = 'WatchEvent' 
+			AND created_at > subtractDays(now(), ?)
+		GROUP BY repo_name
+		ORDER BY count() DESC
+		LIMIT ?
+	)
 SELECT
-	repo_name,
-	sum(days <= 10) as added10,
-	sum(days <= 30) as added30,
-	sum(days <= 90) as added90
-FROM 
-( // at most 1 star per user per repo
-	SELECT
-		repo_name,
-		actor_login,
-		any(created_at) as created_at_sub
-	FROM github_events
-	WHERE event_type = 'WatchEvent' 
-		AND created_at > now() - INTERVAL 90 DAY
-	GROUP BY repo_name, actor_login
-)
-WHERE repo_name in 
-( // "interesting" repos list
-	SELECT
-		repo_name
-	FROM github_events
-	WHERE event_type = 'WatchEvent' AND created_at > now() - INTERVAL ? DAY
-	GROUP BY repo_name
-	ORDER BY count() DESC
-	LIMIT ?
-)
-GROUP BY repo_name
+	e.repo_name,
+	countDistinctIf(e.actor_login, dateDiff('day', e.created_at, now()) <= 10) as added10,
+	countDistinctIf(e.actor_login, dateDiff('day', e.created_at, now()) <= 30) as added30,
+	countDistinctIf(e.actor_login, dateDiff('day', e.created_at, now()) <= 90) as added90
+FROM github_events e
+INNER JOIN interesting_repos r ON e.repo_name = r.repo_name
+WHERE e.event_type = 'WatchEvent'
+	AND e.created_at > now() - INTERVAL 90 DAY
+GROUP BY e.repo_name
 `
 
 // Use ClickHouse to quickly aggregate how many people have starred the repo recently
