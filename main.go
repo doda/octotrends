@@ -34,7 +34,7 @@ type JSONOutItem struct {
 
 var StarsSelectQuery = `
 WITH 
-	(SELECT max(created_at) FROM github_events) as right_now,
+	(SELECT max(created_at) FROM github_events WHERE created_at > now() - INTERVAL 100 DAY) as right_now,
 	dateDiff('day', created_at_sub, right_now) as days
 SELECT
 	repo_name,
