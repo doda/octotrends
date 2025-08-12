@@ -48,7 +48,8 @@ FROM
 		actor_login,
 		any(created_at) as created_at_sub
 	FROM github_events
-	WHERE event_type = 'WatchEvent'
+	WHERE event_type = 'WatchEvent' 
+		AND created_at > minus(right_now, toIntervalDay(90))
 	GROUP BY repo_name, actor_login
 )
 WHERE repo_name in 
